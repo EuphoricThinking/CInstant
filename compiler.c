@@ -6,7 +6,7 @@
 /*  pretty-print the result.                                               */
 /*                                                                         */
 /***************************************************************************/
-
+// TODO check errors
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +16,7 @@
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
 #include "compiler_constants.h"
+#include "llvm_commands.h"
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -25,36 +26,44 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
-void execute_expression(Exp expression) {
+void print_value(FILE* ll_to_append, int value) {
+  fprintf(ll_to_append, PRINT_INT_START);
+  fprintf(ll_to_append, "%d", value);
+  fprintf(ll_to_append, PRINT_INT_END);
+}
+
+void execute_expression(Exp expression, FILE* ll_to_append) {
   switch (expression->kind) {
     case is_ExpLit:
       printf("%d\n", expression->u.explit_.integer_);
+      print_value(ll_to_append, expression->u.explit_.integer_);
+
       break;
   }
 }
-void execute_statement(Stmt single_statement) {
+void execute_statement(Stmt single_statement, FILE* ll_to_append) {
   if (single_statement->kind == is_SExp) {
-      execute_expression(single_statement->u.sexp_.exp_);
+      execute_expression(single_statement->u.sexp_.exp_, ll_to_append);
   }
 }
 
-void execute_statements_list(ListStmt statements) {
+void execute_statements_list(ListStmt statements, FILE* ll_to_append) {
   // Not null
   if (statements) {
-    execute_statement(statements->stmt_);
+    execute_statement(statements->stmt_, ll_to_append);
 
-    execute_statements_list(statements->liststmt_);
+    execute_statements_list(statements->liststmt_, ll_to_append);
   }
 
 }
-void iterate_over_program(Program program) {
+void iterate_over_program(Program program, FILE* ll_to_append) {
   if (!program->kind == is_Prog) {
     return;
   }
     
   ListStmt statements = program->u.prog_.liststmt_;
 
-  execute_statements_list(statements);
+  execute_statements_list(statements, ll_to_append);
 }
 
 char* get_ll_filename(char* basename) {
@@ -64,9 +73,9 @@ char* get_ll_filename(char* basename) {
 
     return stdin_name;
   }
-  
+
   char* dot_occurence = strrchr(basename, '.');
-  printf("XD%s\n", basename);
+
   // Null pointer or the same as basename pointer
   if (! dot_occurence || dot_occurence == basename) {
     //return NULL;
@@ -89,7 +98,6 @@ char* get_ll_filename(char* basename) {
       core_size = ext_len - basename_len;
     }
 
-    printf("%d\n", core_size);
     char* ll_filename = malloc(((size_t) core_size)*sizeof(char) + LL_LEN);
 
     memcpy(ll_filename, basename, core_size);
@@ -99,6 +107,8 @@ char* get_ll_filename(char* basename) {
     return ll_filename;
   }
 }
+
+// void append_instruction_to_the_end(FILE* opened_ll_file)
 
 int main(int argc, char ** argv)
 {
@@ -130,7 +140,6 @@ int main(int argc, char ** argv)
   else input = stdin;
   /* The default entry point is used. For other options see Parser.h */
   parse_tree = pProgram(input);
-  iterate_over_program(parse_tree);
 
   fclose(input);
 
@@ -141,6 +150,11 @@ int main(int argc, char ** argv)
     // printf("%s\n", filename_without_path);
     char* new_name = get_ll_filename(filename);
     printf("%s\n", new_name);
+    fclose(fopen(new_name, "w"));
+    FILE* opened_ll_file = fopen(new_name, "a");
+    fprintf(opened_ll_file, DECLARE_PRINT_INT);
+
+    iterate_over_program(parse_tree, opened_ll_file);
 
     free_Program(parse_tree);
 
