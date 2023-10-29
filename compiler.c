@@ -15,6 +15,7 @@
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
+#include "compiler_constants.h"
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -56,9 +57,42 @@ void iterate_over_program(Program program) {
   execute_statements_list(statements);
 }
 
-char* get_file_name(char) {
+char* get_ll_filename(char* basename) {
+  char* dot_occurence = strrchr(basename, '.');
+  printf("XD%s\n", basename);
+  // Null pointer or the same as basename pointer
+  if (! dot_occurence || dot_occurence == basename) {
+    return NULL;
+    // Return only stdin.ll
+    char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
+    strcpy(stdin_name, STDIN_NAME);
 
+    return stdin_name;
+  }
+  else {
+    int basename_len = (int) strlen(basename);
+    // only the extension
+    int ext_len = (int) strlen(dot_occurence + 1);
+    int core_size;
+
+    if (basename_len > ext_len) {
+      core_size = basename_len - ext_len;
+    }
+    else {
+      core_size = ext_len - basename_len;
+    }
+
+    printf("%d\n", core_size);
+    char* ll_filename = malloc(((size_t) core_size)*sizeof(char) + LL_LEN);
+
+    memcpy(ll_filename, basename, core_size);
+    memcpy(ll_filename + core_size, LL_SUFF, LL_LEN);
+    ll_filename[core_size + LL_LEN - 1] = '\0';
+
+    return ll_filename;
+  }
 }
+
 int main(int argc, char ** argv)
 {
   FILE *input;
@@ -96,10 +130,14 @@ int main(int argc, char ** argv)
   if (parse_tree)
   {
     
-    char* filename_without_path = basename(filename);
-    printf("%s\n", filename_without_path);
+    //char* filename_without_path = basename(filename);
+    // printf("%s\n", filename_without_path);
+    char* new_name = get_ll_filename(filename);
+    printf("%s\n", new_name);
 
     free_Program(parse_tree);
+
+    free(new_name);
 
     return 0;
   }
