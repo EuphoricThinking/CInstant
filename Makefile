@@ -1,3 +1,2 @@
 all:
-	cd build && $(MAKE)
-	gcc compiler.c build/Parser.c build/Lexer.c build/Absyn.c -o compilerInstant -Ibuild
+	gcc compiler.c testReduce/Parser.c testReduce/Lexer.c testReduce/Absyn.c -o compilerInstant -ItestReduce
