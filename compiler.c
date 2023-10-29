@@ -150,6 +150,8 @@ int main(int argc, char ** argv)
     // printf("%s\n", filename_without_path);
     char* new_name = get_ll_filename(filename);
     printf("%s\n", new_name);
+
+    // Erase the file content if the file has been already created
     fclose(fopen(new_name, "w"));
     FILE* opened_ll_file = fopen(new_name, "a");
     fprintf(opened_ll_file, DECLARE_PRINT_INT);
