@@ -58,11 +58,18 @@ void iterate_over_program(Program program) {
 }
 
 char* get_ll_filename(char* basename) {
+  if (!basename) {
+    char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
+    strcpy(stdin_name, STDIN_NAME);
+
+    return stdin_name;
+  }
+  
   char* dot_occurence = strrchr(basename, '.');
   printf("XD%s\n", basename);
   // Null pointer or the same as basename pointer
   if (! dot_occurence || dot_occurence == basename) {
-    return NULL;
+    //return NULL;
     // Return only stdin.ll
     char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
     strcpy(stdin_name, STDIN_NAME);
