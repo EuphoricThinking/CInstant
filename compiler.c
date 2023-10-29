@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
@@ -91,12 +92,15 @@ int main(int argc, char ** argv)
   iterate_over_program(parse_tree);
 
   fclose(input);
-  
+
   if (parse_tree)
   {
     
+    char* filename_without_path = basename(filename);
+    printf("%s\n", filename_without_path);
 
     free_Program(parse_tree);
+
     return 0;
   }
   return 1;
