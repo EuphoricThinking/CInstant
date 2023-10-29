@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Parser.h"
-#include "Printer.h"
-#include "Absyn.h"
+#include "grammar/Parser.h"
+#include "grammar/Printer.h"
+#include "grammar/Absyn.h"
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");

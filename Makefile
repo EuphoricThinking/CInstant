@@ -7,30 +7,33 @@ FLEX_OPTS = -Pinstant_
 BISON = bison
 BISON_OPTS = -t -pinstant_
 
-OBJS = Absyn.o Buffer.o Lexer.o Parser.o Printer.o
+OBJS = Absyn.o Buffer.o Lexer.o Parser.o
 
-all : TestInstant
+all : compilerInstant
 
-TestInstant : ${OBJS} Test.o
-	@echo "Linking TestInstant..."
-	${CC} ${OBJS} Test.o -o TestInstant
+compilerInstant : ${OBJS} compiler.o
+	@echo "Linking CompilerInstant..."
+	${CC} ${OBJS} compiler.o -o compilerInstant
 
 Absyn.o : grammar/Absyn.c grammar/Absyn.h
-	${CC} ${CCFLAGS} -c Absyn.c
+	${CC} ${CCFLAGS} -c grammar/Absyn.c
 
-Buffer.o : Buffer.c Buffer.h
-	${CC} ${CCFLAGS} -c Buffer.c
+Buffer.o : grammar/Buffer.c grammar/Buffer.h
+	${CC} ${CCFLAGS} -c grammar/Buffer.c
 
-Lexer.c : Instant.l
-	${FLEX} ${FLEX_OPTS} -oLexer.c Instant.l
+Lexer.c : grammar/Instant.l
+	${FLEX} ${FLEX_OPTS} -oLexer.c grammar/Instant.l
 
-Parser.c Bison.h : Instant.y
-	${BISON} ${BISON_OPTS} Instant.y -o Parser.c
+Parser.c Bison.h : grammar/Instant.y
+	${BISON} ${BISON_OPTS} grammar/Instant.y -o Parser.c
 
 Lexer.o : CCFLAGS+=-Wno-sign-conversion
 
-Lexer.o : Lexer.c Bison.h
+Lexer.o : Lexer.c grammar/Bison.h
 	${CC} ${CCFLAGS} -c Lexer.c
 
-Parser.o : Parser.c Absyn.h Bison.h
-	${CC} ${CCFLAGS} -c Parser.c
+Parser.o : grammar/Parser.c grammar/Absyn.h grammar/Bison.h
+	${CC} ${CCFLAGS} -c grammar/Parser.c
+	
+compiler.o : compiler.c grammar/Parser.h grammar/Printer.h grammar/Absyn.h
+	${CC} ${CCFLAGS} -c compiler.c
