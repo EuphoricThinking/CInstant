@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "grammar/Parser.h"
-//#include "grammar/Printer.h"
-#include "grammar/Absyn.h"
+#include "Parser.h"
+#include "Printer.h"
+#include "Absyn.h"
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -21,38 +21,6 @@ void usage(void) {
   printf("\t(no arguments)\tParse stdin verbosely.\n");
   printf("\t(files)\t\tParse content of files verbosely.\n");
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
-}
-
-void execute_expression(Exp expression) {
-  switch (expression->kind) {
-    case is_ExpLit:
-      printf("%d\n", expression->u.explit_.integer_);
-      break;
-  }
-}
-void execute_statement(Stmt single_statement) {
-  if (single_statement->kind == is_SExp) {
-      execute_expression(single_statement->u.sexp_.exp_);
-  }
-}
-
-void execute_statements_list(ListStmt statements) {
-  // Not null
-  if (statements) {
-    execute_statement(statements->stmt_);
-
-    execute_statements_list(statements->liststmt_);
-  }
-
-}
-void iterate_over_program(Program program) {
-  if (!program->kind) {
-    return;
-  }
-    
-  ListStmt statements = program->u.prog_.liststmt_;
-
-  execute_statements_list(statements);
 }
 
 int main(int argc, char ** argv)
@@ -85,12 +53,15 @@ int main(int argc, char ** argv)
   else input = stdin;
   /* The default entry point is used. For other options see Parser.h */
   parse_tree = pProgram(input);
-  iterate_over_program(parse_tree);
-
   if (parse_tree)
   {
-    
-
+    printf("\nParse Successful!\n");
+    if (!quiet) {
+      printf("\n[Abstract Syntax]\n");
+      printf("%s\n\n", showProgram(parse_tree));
+      printf("[Linearized Tree]\n");
+      printf("%s\n\n", printProgram(parse_tree));
+    }
     free_Program(parse_tree);
     return 0;
   }
