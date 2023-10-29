@@ -161,6 +161,7 @@ int main(int argc, char ** argv)
     free_Program(parse_tree);
 
     free(new_name);
+    fclose(opened_ll_file);
 
     return 0;
   }
