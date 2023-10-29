@@ -38,6 +38,7 @@ void execute_statement(Stmt single_statement) {
 
 void execute_statements_list(ListStmt statements) {
   // Not null
+  printf("statements are\n");
   if (statements) {
     execute_statement(statements->stmt_);
 
@@ -46,7 +47,10 @@ void execute_statements_list(ListStmt statements) {
 
 }
 void iterate_over_program(Program program) {
-  if (!program->kind) {
+  printf("iterating\n");
+  printf("%d\n", program->kind);
+  if (!program->kind == is_Prog) {
+    printf("not program\n");
     return;
   }
     
@@ -57,6 +61,8 @@ void iterate_over_program(Program program) {
 
 int main(int argc, char ** argv)
 {
+
+  printf("Here, bitch\n");
   FILE *input;
   Program parse_tree;
   int quiet = 0;
@@ -76,6 +82,7 @@ int main(int argc, char ** argv)
   }
 
   if (filename) {
+    printf("filename is\n");
     input = fopen(filename, "r");
     if (!input) {
       usage();
