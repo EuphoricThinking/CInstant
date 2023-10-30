@@ -400,6 +400,8 @@ int main(int argc, char ** argv)
     fclose(opened_ll_file);
 
     extern char** environ;
+    printf("printing\n");
+    print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
 

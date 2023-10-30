@@ -1,6 +1,7 @@
 #include "cavl.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 
@@ -68,6 +69,7 @@ static Node* _update(Node* tree, char* ident) {
     tree->height = max(height_left, height_right) + 1;
 
     int balance_factor = height_left - height_right;
+    printf("bal%d\n", balance_factor);
 
 
     int cmp_child;
@@ -88,7 +90,7 @@ static Node* _update(Node* tree, char* ident) {
         }
     }
     // Right tree is bigger
-    else if (balance_factor < 1) {
+    else if (balance_factor < -1) {
         cmp_child = strcmp(tree->right->ident, ident);
 
         // Right right
@@ -125,15 +127,28 @@ static Node* _insert(Node* tree, char* ident, int value) {
 
     int comp_result = strcmp(ident, tree->ident);
     if (comp_result < 0) {
+        printf("left\n");
         tree->left = _insert(tree->left, ident, value);
     }
     else if (comp_result > 0) {
+        printf("right\n");
         tree->right = _insert(tree->right, ident, value);
     } else {
+        printf("same\n");
         return tree;
     }
 
+    printf("update\n");
     return _update(tree, ident);
+}
+
+void print_tree(Node* tree) {
+    if (!tree) printf("NULL\n");
+    if (tree) {
+        print_tree(tree->left);
+        printf("%s\n", tree->ident);
+        print_tree(tree->right);
+    }
 }
 
 void free_tree(Node* tree) {
