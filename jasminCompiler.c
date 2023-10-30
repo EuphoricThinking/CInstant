@@ -433,8 +433,12 @@ void free_names(names_extensions* names) {
 void print_jasmin_header(names_extensions* names, FILE* opened) {
   fprintf(opened, "%s%s\n%s", CLASS_BEGINNING, names->name, SUPER_DECL);
   fprintf(opened, "%s%s()V\n", BEGIN_METHOD, names->name);
+}
+
+void print_jasmin_end(FILE* opened) {
   fprintf(opened, END_METHOD);
 }
+
 int main(int argc, char ** argv)
 {
   printf("in\n");
@@ -495,6 +499,8 @@ int main(int argc, char ** argv)
 
 
     iterate_over_program(parse_tree, opened_j_file);
+
+    print_jasmin_end(opened_j_file);
 
     free_Program(parse_tree);
 
