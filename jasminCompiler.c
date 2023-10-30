@@ -439,6 +439,11 @@ void print_jasmin_end(FILE* opened) {
   fprintf(opened, END_METHOD);
 }
 
+void print_jasmin_stack_locals(FILE* opened, int locals_size, int stack_size) {
+  fprintf(opened, "%s%d\n", LOCALS_SIZE, locals_size);
+  fprintf(opened, "%s%d\n", STACK_SIZE, stack_size);
+}
+
 int main(int argc, char ** argv)
 {
   printf("in\n");
