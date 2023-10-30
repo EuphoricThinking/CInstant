@@ -6,6 +6,10 @@ Node* insert(Node* tree, char* ident, int value) {
     return _insert(tree, ident, value);
 }
 
+// void remove(Node* tree, char* ident) {
+//     tree = _remove(tree, ident);
+// }
+
 static int max(int a, int b) {
     if (a < b) return b;
     return a;
@@ -130,5 +134,51 @@ static Node* _insert(Node* tree, char* ident, int value) {
         return tree;
     }
 
-    _update(tree);
+    return _update(tree);
 }
+
+void free_tree(Node* tree) {
+    if (tree) {
+        free_tree(tree->left);
+        free_tree(tree->right);
+
+        // should be satisfied
+        free(tree->ident);
+        free(tree);
+    }
+}
+
+Node* search(Node* tree, char* ident) {
+    if (!tree) {
+        return NULL;
+    }
+
+    int comp_result = strcmp(ident, tree->ident);
+    if (comp_result < 0) {
+        return search(tree->left, ident);
+    }
+    else if (comp_result > 0) {
+        return search(tree->right, ident);
+    }
+    else {
+        return tree;
+    }
+}
+
+
+// static Node* _remove(Node* tree, char* ident) {
+//     if (!tree) {
+//         return tree;
+//     }
+
+//     int comp_result = strcmp(ident, tree->left);
+//     if (comp_result < 0) {
+//         tree->left = _remove(tree->left, ident);
+//     }
+//     else if (comp_result > 0) {
+//         tree->right = _remove(tree->right, ident);
+//     }
+//     else {
+//         return _free_node(tree);
+//     }
+// }
