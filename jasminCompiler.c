@@ -430,6 +430,11 @@ void free_names(names_extensions* names) {
 //   fclose(helper_script);
 // }
 
+void print_jasmin_header(names_extensions* names, FILE* opened) {
+  fprintf(opened, "%s%s\n%s", CLASS_BEGINNING, names->name, SUPER_DECL);
+  fprintf(opened, "%s%s()V\n", BEGIN_METHOD, names->name);
+  fprintf(opened, END_METHOD);
+}
 int main(int argc, char ** argv)
 {
   printf("in\n");
@@ -479,8 +484,7 @@ int main(int argc, char ** argv)
     // Erase the file content if the file has been already created
     fclose(fopen(j_name, "w"));
     FILE* opened_j_file = fopen(j_name, "a");
-    fprintf(opened_j_file, BEGIN_METHOD);
-    fprintf(opened_j_file, END_METHOD);
+    print_jasmin_header(new_name, opened_j_file);
 
     printf("%s\n%s\n", new_name->ext, new_name->name);
 

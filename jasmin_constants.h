@@ -4,8 +4,10 @@
 #define LOCALS_SIZE "\t.limit locals " 
 #define STACK_SIZE "\t.limit stack " 
 
-#define BEGIN_METHOD ".method static \n"
+#define BEGIN_METHOD ".method public static "
 #define END_METHOD ".end method\n"
+#define CLASS_BEGINNING ".class public "
+#define SUPER_DECL ".super java/lang/Object\n"
 
 #define J_LEN 2
 #define J_EXT "j"
