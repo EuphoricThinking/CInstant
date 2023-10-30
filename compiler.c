@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
+#include <unistd.h>
 
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
@@ -206,12 +207,19 @@ int main(int argc, char ** argv)
     fprintf(opened_ll_file, END_MAIN_BRACKET);
 
     create_shell_command(new_name);
-    int call_result = system(COMPILE_TO_BC_COMMAND);
-    printf("%d i chuj\n", call_result);
-    
-
     free_names(new_name);
     fclose(opened_ll_file);
+
+    extern char** environ;
+
+    if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
+      printf("fuck you\n");
+
+      return 1;
+    }
+
+    // int call_result = system(COMPILE_TO_BC_COMMAND);
+    // printf("%d i chuj\n", call_result);
 
     return 0;
   }

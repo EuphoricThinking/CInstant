@@ -8,11 +8,13 @@
 #define PRINT_INT_END ")\n"
 
 #define LLVM_LINK_START "llvm-link -o "
-#define LLVM_LINK_END " ./build/temp.bc ./build/runtime.bc \n lli playground/a.bc > output.txt 2> error.txt"
+#define LLVM_LINK_END " ./build/temp.bc ./build/runtime.bc "
 #define LLVM_AS_START "llvm-as -o ./build/runtime.bc ./build/runtime.ll ; pwd > pwd.txt ; llvm-as -o ./build/temp.bc "
 #define LLVM_AS_END "\n"
 #define SHELL_COMMAND_LENGTH 93 // +2
 #define HELPER_NAME "./build/HELPER.sh"
 #define COMPILE_TO_BC_COMMAND "echo \"dupa\" > dupa.txt && bash ./build/HELPER.sh"
+
+#define BASH_COMMAND "/bin/sh"
 
 #endif
