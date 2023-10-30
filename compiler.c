@@ -77,14 +77,31 @@ void store_value(FILE* ll_to_append, char* register_name, int value) {
   fprintf(ll_to_append, STORE_END_REGISTER);
 }
 
-void initialize_variable(FILE* ll_to_append, char* register_name, int value) {
+void store_register(FILE* ll_to_append, char* register_name, int register_num) {
+  fprintf(ll_to_append, STORE_START_VALUE);
+  fprintf(ll_to_append, "%%d", value);
+  fprintf(ll_to_append, STORE_MIDDLE);
+  fprintf(ll_to_append, "%s", register_name);
+  fprintf(ll_to_append, STORE_END_REGISTER);
+}
+
+void alloca_assign(FILE* ll_to_append, char* register_name) {
   fprintf(ll_to_append, ALLOCA_START);
   fprintf(ll_to_append, "%s", register_name);
   fprintf(ll_to_append, ALLOCA_END);
+}
+
+void initialize_variable(FILE* ll_to_append, char* register_name, int value) {
+  alloca_assign(ll_to_append, register_name);
 
   store_value(ll_to_append, register_name, value);
 }
 
+void initialize_variable_with_register(FILE* ll_to_append, char* register_name, int register_num) {
+  alloca_assign(ll_to_append, register_name);
+
+  store_register(ll_to_append, register_name, register_num);
+}
 
 int get_expr_value(Exp expr) {
   return expr->u.explit_.integer_;
@@ -214,28 +231,67 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
 }
 
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
-  Node* found = NULL;
-  switch (exp->kind) {
-    // ident = exp.int
-    case is_ExpLit:
-      printf("literal\n");
-      found = search(assignment_dictionary, ident);
-      int value = exp->u.explit_.integer_;
+  Node* found = search(assignment_dictionary, ident);
+  arithmetic_result arm_res;
+  int value;
+  int register_num;
 
+  switch (exp->kind) {
+    case is_ExpLit:
+      value = exp->u.explit_.integer_;
       if (found) {
         found->value = value;
         store_value(ll_to_append, ident, value);
       }
       else {
         char* new_ident = strdup(ident);
-        printf("cmp %d\n", strcmp(new_ident, ident));
         assignment_dictionary = insert(assignment_dictionary, new_ident, value);
 
         initialize_variable(ll_to_append, ident, value);
       }
-
       break;
+
+    default:
+      arm_res = parse_tree_calculate(exp, ll_to_append);
+      register_num = arm_res.register_num;
+
+      if (found) {
+        found->value = value;
+        store_register(ll_to_append, ident, register_num);
+      }
+      else {
+        char* new_ident = strdup(ident);
+        assignment_dictionary = insert(assignment_dictionary, new_ident, register_num); // -1 ough to be
+
+        initialize_variable_with_register(ll_to_append, ident, register_num);
+      }
   }
+  // switch (exp->kind) {
+  //   // ident = exp.int
+  //   case is_ExpLit:
+  //     printf("literal\n");
+  //     found = search(assignment_dictionary, ident);
+  //     int value = exp->u.explit_.integer_;
+
+  //     if (found) {
+  //       found->value = value;
+  //       store_value(ll_to_append, ident, value);
+  //     }
+  //     else {
+  //       char* new_ident = strdup(ident);
+  //       printf("cmp %d\n", strcmp(new_ident, ident));
+  //       assignment_dictionary = insert(assignment_dictionary, new_ident, value);
+
+  //       initialize_variable(ll_to_append, ident, value);
+  //     }
+
+  //     break;
+
+  //   // an expression x = 2*4
+  //   default:
+  //     arm_res = parse_tree_calculate(exp, ll_to_append);
+
+  // }
 }
 
 void execute_statement(Stmt single_statement, FILE* ll_to_append) {
