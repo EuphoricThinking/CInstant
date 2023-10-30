@@ -48,10 +48,19 @@ void print_value(FILE* ll_to_append, int value) {
 }
 
 void execute_expression(Exp expression, FILE* ll_to_append) {
+  Node* found = NULL;
   switch (expression->kind) {
     case is_ExpLit:
       printf("%d\n", expression->u.explit_.integer_);
       print_value(ll_to_append, expression->u.explit_.integer_);
+
+      break;
+
+    case is_ExpVar:
+      printf("variable\n");
+      found = search(assignment_dictionary, expression->u.expvar_.ident_);
+      if (!found) printf("not found\n");
+      print_value(ll_to_append, found->value);
 
       break;
   }
@@ -61,6 +70,7 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
   Node* found = NULL;
   switch (exp->kind) {
     case is_ExpLit:
+      printf("literal\n");
       found = search(assignment_dictionary, ident);
       int value = exp->u.explit_.integer_;
 
@@ -69,14 +79,11 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
       }
       else {
         char* new_ident = strdup(ident);
-        insert(assignment_dictionary, new_ident, value);
+        printf("cmp %d\n", strcmp(new_ident, ident));
+        assignment_dictionary = insert(assignment_dictionary, new_ident, value);
       }
 
       break;
-
-    case is_ExpVar:
-      found = search(assignment_dictionary, ident);
-      print_value(ll_to_append, found->value);
   }
 }
 

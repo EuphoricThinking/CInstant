@@ -111,6 +111,7 @@ static Node* _update(Node* tree, char* ident) {
 // Perform strdup earlier for an identifier
 static Node* _insert(Node* tree, char* ident, int value) {
     if (!tree) {
+        printf("inserting\n");
         Node* new_node = malloc(sizeof(Node));
         new_node->ident = ident;
         new_node->value = value;
@@ -163,8 +164,8 @@ Node* search(Node* tree, char* ident) {
     }
 }
 
-void insert(Node* tree, char* ident, int value) {
-    tree= _insert(tree, ident, value);
+Node* insert(Node* tree, char* ident, int value) {
+    return _insert(tree, ident, value);
 }
 
 
