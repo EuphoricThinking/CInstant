@@ -21,6 +21,10 @@
 #define LOAD_MIDDLE " = load i32, i32* %"
 #define LOAD_END "\n"
 
+#define ADD_START "\tadd i32 "
+#define ADD_MIDDLE ", "
+#define ADD_END "\n"
+
 #define LLVM_LINK_START "llvm-link -o "
 #define LLVM_LINK_END " ./build/temp.bc ./build/runtime.bc "
 #define LLVM_AS_START "llvm-as -o ./build/runtime.bc ./build/runtime.ll \nllvm-as -o ./build/temp.bc "

@@ -48,8 +48,11 @@ void print_value(FILE* ll_to_append, int value) {
   fprintf(ll_to_append, PRINT_INT_END);
 }
 
-void print_variable(FILE* ll_to_append, char* register_name) {
+void load_variable(FILE* ll_to_append, char* register_name) {
   fprintf(ll_to_append, "%s%s%s%s%s", LOAD_START, register_name, LOAD_MIDDLE, register_name, LOAD_END);
+}
+void print_variable(FILE* ll_to_append, char* register_name) {
+  load_variable(ll_to_append, register_name);
   fprintf(ll_to_append, PRINT_VAR_START);
   fprintf(ll_to_append, "%s", register_name);
   fprintf(ll_to_append, PRINT_VAR_END);
@@ -67,6 +70,78 @@ void store_value(FILE* ll_to_append, char* register_name, int value) {
   fprintf(ll_to_append, STORE_END_REGISTER);
 }
 
+int get_expr_value(Expr expr) {
+  return expr->u.explit_.integer_;
+}
+
+int get_expr_ident(Expr expr) {
+  return expr->u.expvar_.ident_;
+}
+
+void fprintf_register_var_or_literal(arithmetic_result arm_res, FILE* ll_to_append) {
+  if (arm_res.kind == is_variable) {
+    fprintf(ll_to_append, "%%load_%s", arm_res.variable);
+  }
+  else if (arm_res.kind == is_register) {
+    fprintf(ll_to_append, "%%%d", arm_res.register_num);
+  }
+  else { // literal
+    fprintf(ll_to_append, "%d", arm_res.value);
+  }
+}
+
+void perform_addition_assign_reg(int register_result, arithmetic_result expr1, arithmetic_result expr2, FILE* ll_to_append) {
+
+  fprintf(ll_to_append, "%%%d = %s", register_result, ADD_START);
+  
+  fprintf_register_var_or_literal(expr1, ll_to_append);
+
+  fprintf(ll_to_append, ADD_MIDDLE);
+
+  fprintf_register_var_or_literal(expr2, ll_to_append);
+
+  fprintf(ll_to_append, ADD_END);
+}
+
+arithmetic_result parse_tree_calculate(Exp expr, FILE* ll_to_append) {
+  Node* found;
+  arithmetic_result result;
+  arithmetic_result exp1_res;
+  arithmetic_result exp2_res;
+  int new_register;
+  switch (expr->kind) {
+    case is_ExpLit:
+      result.kind = is_literal;
+      result.variable = NULL;
+      result.register_num = -1;
+      result.value = get_expr_value(expr);
+
+      return result;
+
+    case is_ExpVar:
+      load_variable(ll_to_append, get_expr_ident(expr));
+      result.kind = is_variable;
+      result.variable = get_expr_ident(expr);
+      result.register_num = -1;
+
+      return result;
+
+    case is_ExpAdd:
+      exp1_res = parse_tree_calculate(expr->u.expadd_.exp_1);
+      exp2_res = parse_tree_calculate(exp->u.expadd_.exp_2);
+
+      new_register = get_new_register_increase_previous();
+
+      perform_addition_assign_reg(new_register, exp1_res, exp2_res, ll_to_append);
+
+      result.kind = is_register;
+      result.variable = NULL;
+      result.register_num = new_register;
+      result.value = -1;
+
+      return result;
+  }
+}
 // load and print
 
 void execute_expression(Exp expression, FILE* ll_to_append) {
@@ -87,6 +162,9 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
       print_variable(ll_to_append, found->ident);
 
       break;
+
+    default:
+      arithmetic_result result = parse_tree_calculate(expression, ll_to_append);
   }
 }
 
