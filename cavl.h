@@ -14,6 +14,6 @@ typedef struct Node {
 } Node;
 
 Node* search(Node* tree, char* ident);
-void insert(Node* tree, char* ident, int value);
+Node* insert(Node* tree, char* ident, int value);
 void remove(Node* tree, char* ident, int value);
 void free_tree(Node* tree);

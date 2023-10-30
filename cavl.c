@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-void insert(Node* tree, char* ident, int value) {
-    tree = _insert(tree, ident, value);
+Node* insert(Node* tree, char* ident, int value) {
+    return _insert(tree, ident, value);
 }
 
 static int max(int a, int b) {
@@ -33,11 +33,75 @@ static void _update_height(Node* tree) {
 //     }
 // }
 
+static void _rotate_left(Node* tree) {
+    Node* right_child_to_go_up = tree->right;
+    Node* left_child_to_switch_right = right_child_to_go_up->left;
+
+    tree->right = left_child_to_switch_right;
+    right_child_to_go_up->left = tree;
+
+    _update_height(tree);
+    _update_height(right_child_to_go_up);
+
+    return right_child_to_go_up;
+}
+
+static void _rotate_right(Node* old_root) {
+    Node* left_child_to_go_up = old_root->left;
+    Node* right_child_to_switch_left = left_child_to_go_up->right;
+
+    old_root->left = right_child_to_switch_left;
+    left_child_to_go_up->right = old_root;
+
+    _update_height(old_root);
+    _update_height(left_child_to_go_up);
+
+    return left_child_to_go_up;
+}
+
 static void _update(Node* tree) {
     int height_left = get_height(tree->left);
     int height_right = get_height(tree->right);
 
-    int balance_factor = 
+    tree->height = max(height_left, height_right) + 1;
+
+    int balance_factor = height_left - height_right;
+
+
+    int cmp_child;
+
+    // We know that the left is imbalanced, therefore we can check the left child
+    // We compare key values to determine where nodes have been inserted
+    if (balance_factor > 1) {
+        cmp_child = strcmp(ident, tree->left->ident);
+        
+        // Left left
+        if (cmp_child < 0) {
+            return _rotate_right(tree);
+        }
+        // Left right
+        else if (cmp_child > 0) {
+            tree->left = _rotate_left(tree->left);
+            return _rotate_right(tree);
+        }
+    }
+    // Right tree is bigger
+    else if (balance_factor < 1) {
+        cmp_child = strcmp(tree->right->ident, ident);
+
+        // Right right
+        if (cmp_child < 0) {
+            return _rotate_left(tree);
+        }
+        // Right left
+        else if (cmp_child > 0) {
+            tree->right = _rotate_right(tree->right);
+            return _rotate_left(tree);
+        }
+    }
+    else {
+        return tree;
+    }
 
 }
 
