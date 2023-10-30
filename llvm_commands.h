@@ -10,6 +10,9 @@
 #define PRINT_VAR_START "\tcall void @printInt(i32 %%load_"
 #define PRINT_VAR_END ")\n"
 
+#define PRINT_REGISTER_START "\tcall void @printInt(i32 %"
+#define PRINT_REGISTER_END ")\n"
+
 #define ALLOCA_START "\t%%"
 #define ALLOCA_END " = alloca i32\n"
 
@@ -21,10 +24,10 @@
 #define LOAD_MIDDLE " = load i32, i32* %"
 #define LOAD_END "\n"
 
-#define ADD_START "\tadd i32 "
-#define MUL_START "\tmul i32 "
-#define DIV_START "\tsdiv i32 "
-#define SUB_START "\tsub i32 "
+#define ADD_START "add i32 "
+#define MUL_START "mul i32 "
+#define DIV_START "sdiv i32 "
+#define SUB_START "sub i32 "
 
 #define ARITHM_MIDDLE ", "
 #define ARITHM_END "\n"

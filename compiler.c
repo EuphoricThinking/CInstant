@@ -49,9 +49,7 @@ void print_value(FILE* ll_to_append, int value) {
 }
 
 void print_register(FILE* ll_to_append, int register_num) {
-  fprintf(ll_to_append, PRINT_VAR_START);
-  fprintf(ll_to_append, "%d", register_num);
-  fprintf(ll_to_append, PRINT_VAR_END);
+  fprintf(ll_to_append, "%s%d%s", PRINT_REGISTER_START, register_num, PRINT_REGISTER_END);
 }
 
 void load_variable(FILE* ll_to_append, char* register_name) {
@@ -100,16 +98,16 @@ void perform_arithm_op_assign_reg(int register_result, arithmetic_result expr1, 
 
   switch (operation) {
     case ADD:
-      fprintf(ll_to_append, "%%%d = %s", register_result, ADD_START);
+      fprintf(ll_to_append, "\t%%%d = %s", register_result, ADD_START);
       break;
     case DIV:
-      fprintf(ll_to_append, "%%%d = %s", register_result, DIV_START);
+      fprintf(ll_to_append, "\t%%%d = %s", register_result, DIV_START);
       break;
     case MUL:
-      fprintf(ll_to_append, "%%%d = %s", register_result, MUL_START);
+      fprintf(ll_to_append, "\t%%%d = %s", register_result, MUL_START);
       break;
     case SUB:
-      fprintf(ll_to_append, "%%%d = %s", register_result, SUB_START);
+      fprintf(ll_to_append, "\t%%%d = %s", register_result, SUB_START);
       break;
   }
 
