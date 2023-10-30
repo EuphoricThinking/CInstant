@@ -48,6 +48,12 @@ void print_value(FILE* ll_to_append, int value) {
   fprintf(ll_to_append, PRINT_INT_END);
 }
 
+void print_register(FILE* ll_to_append, int register_num) {
+  fprintf(ll_to_append, PRINT_VAR_START);
+  fpritnf(ll_to_append, "%d", register_num);
+  fprintf(ll_to_append, PRINT_VAR_END);
+}
+
 void load_variable(FILE* ll_to_append, char* register_name) {
   fprintf(ll_to_append, "%s%s%s%s%s", LOAD_START, register_name, LOAD_MIDDLE, register_name, LOAD_END);
 }
@@ -189,8 +195,10 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
 
       break;
 
+    // whole statement to print
     default:
       arithmetic_result result = parse_tree_calculate(expression, ll_to_append);
+      print_register(ll_to_append, result.register_num);
   }
 }
 
