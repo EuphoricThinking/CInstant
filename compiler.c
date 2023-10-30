@@ -50,7 +50,7 @@ void print_value(FILE* ll_to_append, int value) {
 
 void print_register(FILE* ll_to_append, int register_num) {
   fprintf(ll_to_append, PRINT_VAR_START);
-  fpritnf(ll_to_append, "%d", register_num);
+  fprintf(ll_to_append, "%d", register_num);
   fprintf(ll_to_append, PRINT_VAR_END);
 }
 
@@ -76,11 +76,11 @@ void store_value(FILE* ll_to_append, char* register_name, int value) {
   fprintf(ll_to_append, STORE_END_REGISTER);
 }
 
-int get_expr_value(Expr expr) {
+int get_expr_value(Exp expr) {
   return expr->u.explit_.integer_;
 }
 
-int get_expr_ident(Expr expr) {
+char* get_expr_ident(Exp expr) {
   return expr->u.expvar_.ident_;
 }
 
@@ -122,7 +122,7 @@ void perform_arithm_op_assign_reg(int register_result, arithmetic_result expr1, 
   fprintf(ll_to_append, ARITHM_END);
 }
 
-enum Op_type get_operation_type(Expr expr) {
+enum Op_type get_operation_type(Exp expr) {
   switch (expr->kind) {
     case is_ExpAdd:
       return ADD;
@@ -159,8 +159,8 @@ arithmetic_result parse_tree_calculate(Exp expr, FILE* ll_to_append) {
       return result;
 
     default:
-      exp1_res = parse_tree_calculate(expr->u.expadd_.exp_1);
-      exp2_res = parse_tree_calculate(exp->u.expadd_.exp_2);
+      exp1_res = parse_tree_calculate(expr->u.expadd_.exp_1, ll_to_append);
+      exp2_res = parse_tree_calculate(expr->u.expadd_.exp_2, ll_to_append);
 
       new_register = get_new_register_increase_previous();
 
