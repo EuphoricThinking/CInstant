@@ -66,26 +66,33 @@ void iterate_over_program(Program program, FILE* ll_to_append) {
   execute_statements_list(statements, ll_to_append);
 }
 
-char* get_ll_filename(char* basename) {
-  if (!basename) {
+names_extensions* get_ll_filename(char* basename) {
+  char* dot_occurence;
+
+  names_extensions* result = malloc(2 * sizeof(char*));
+  if (!basename || !(dot_occurence = strrchr(basename, '.')) || dot_occurence == basename) {
     char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
     strcpy(stdin_name, STDIN_NAME);
+    char* stdin_bc = malloc(sizeof(char) * STDIN_BC_LEN);
 
-    return stdin_name;
+    result->ll_ext = stdin_name;
+    result->bc_ext = stdin_bc;
+    // names_extensions result = { .ll_ext = stdin_name, .bc_ext = stdin_bc};
+    return result;
   }
 
-  char* dot_occurence = strrchr(basename, '.');
+   ;
 
-  // Null pointer or the same as basename pointer
-  if (! dot_occurence || dot_occurence == basename) {
-    //return NULL;
-    // Return only stdin.ll
-    char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
-    strcpy(stdin_name, STDIN_NAME);
+  // // Null pointer or the same as basename pointer
+  // if (! dot_occurence || dot_occurence == basename) {
+  //   //return NULL;
+  //   // Return only stdin.ll
+  //   char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
+  //   strcpy(stdin_name, STDIN_NAME);
 
-    return stdin_name;
-  }
-  else {
+  //   return stdin_name;
+  // }
+  // else {
     int basename_len = (int) strlen(basename);
     // only the extension
     int ext_len = (int) strlen(dot_occurence + 1);
@@ -102,13 +109,27 @@ char* get_ll_filename(char* basename) {
 
     memcpy(ll_filename, basename, core_size);
     memcpy(ll_filename + core_size, LL_SUFF, LL_LEN);
-    ll_filename[core_size + LL_LEN - 1] = '\0';
+    // ll_filename[core_size + LL_LEN - 1] = '\0';
 
-    return ll_filename;
-  }
+    char* bc_filename = strdup(ll_filename);
+    memcpy(bc_filename + core_size, BC_SUFF, BC_LEN); 
+
+    //return ll_filename;
+    //return {ll_filename, bc_filename};
+    result->ll_ext = ll_filename;
+    result->bc_ext = bc_filename;
+
+    //names_extensions result = { .ll_ext = ll_filename, .bc_ext = bc_filename};
+    return result;
+  //}
 }
 
 // void append_instruction_to_the_end(FILE* opened_ll_file)
+void free_names(names_extensions* names) {
+  free(names->ll_ext);
+  free(names->bc_ext);
+  free(names);
+}
 
 int main(int argc, char ** argv)
 {
@@ -148,19 +169,24 @@ int main(int argc, char ** argv)
     
     //char* filename_without_path = basename(filename);
     // printf("%s\n", filename_without_path);
-    char* new_name = get_ll_filename(filename);
-    printf("%s\n", new_name);
+    names_extensions* new_name = get_ll_filename(filename);
+    // printf("%s\n", new_name);
+    char* ll_name = new_name->ll_ext;
 
+    // TODO add const char*
     // Erase the file content if the file has been already created
-    fclose(fopen(new_name, "w"));
-    FILE* opened_ll_file = fopen(new_name, "a");
+    fclose(fopen(ll_name, "w"));
+    FILE* opened_ll_file = fopen(ll_name, "a");
     fprintf(opened_ll_file, DECLARE_PRINT_INT);
+
+    printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
+
 
     iterate_over_program(parse_tree, opened_ll_file);
 
     free_Program(parse_tree);
 
-    free(new_name);
+    free_names(new_name);
     fclose(opened_ll_file);
 
     return 0;
