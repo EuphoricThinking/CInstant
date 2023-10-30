@@ -223,7 +223,6 @@ int main(int argc, char ** argv)
     extern char** environ;
 
     if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
-      printf("fuck you\n");
 
       return 1;
     }
