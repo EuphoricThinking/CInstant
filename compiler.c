@@ -13,9 +13,12 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <inttypes.h>
+
+#define UINT32_FORMATTER PRIu32
 
 // TODO check for max values
-uint32_t last_register = 0;
+int last_register = 0;
 
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
@@ -23,7 +26,7 @@ uint32_t last_register = 0;
 #include "compiler_constants.h"
 #include "llvm_commands.h"
 
-uint32_t get_new_register_increase_previous() {
+int get_new_register_increase_previous() {
   return last_register++;
 }
 
@@ -79,7 +82,7 @@ void iterate_over_program(Program program, FILE* ll_to_append) {
 names_extensions* get_ll_filename(char* basename) {
   char* dot_occurence;
 
-  names_extensions* result = malloc(2 * sizeof(char*));
+  names_extensions* result = malloc(2 * sizeof(char*) + sizeof(size_t));
   if (!basename || !(dot_occurence = strrchr(basename, '.')) || dot_occurence == basename) {
     char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
     strcpy(stdin_name, STDIN_NAME);
@@ -206,7 +209,7 @@ int main(int argc, char ** argv)
 
     printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
 
-    printf("%d %d %d\n", last_register, get_new_register_increase_previous(), last_register);
+    printf("ha%d %d %d\n", last_register, get_new_register_increase_previous(), last_register);
 
 
     iterate_over_program(parse_tree, opened_ll_file);
