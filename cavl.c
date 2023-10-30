@@ -13,7 +13,7 @@ static int max(int a, int b) {
 
 static int get_height(Node* tree) {
     if (!tree) {
-        return -1;
+        return 0;
     }
     else {
         return tree->height;
@@ -27,11 +27,11 @@ static void _update_height(Node* tree) {
     tree->height = max(height_left, height_right) + 1;
 }
 
-static void _get_balance_factor(Node* tree) {
-    if (tree->right && tree->left) {
-        return get_height(tree->left)
-    }
-}
+// static void _get_balance_factor(Node* tree) {
+//     if (tree->right && tree->left) {
+//         return get_height(tree->left)
+//     }
+// }
 
 static void _update(Node* tree) {
     int height_left = get_height(tree->left);
@@ -51,16 +51,19 @@ static Node* _insert(Node* tree, char* ident, int value) {
         new_node->left = NULL;
         new_node->right = NULL;
         //new_node->balace_factor = 0;
-        new_node->height = 0;
+        new_node->height = 1;
 
         return new_node;
     }
 
-    if (strcmp(ident, tree->ident) < 0) {
-        tree = _insert(tree->left, ident, value);
+    int comp_result = strcmp(ident, tree->ident);
+    if (comp_result < 0) {
+        tree->left = _insert(tree->left, ident, value);
     }
-    else {
-        tree = _insert(tree->right, ident, value);
+    else if (comp_result > 0) {
+        tree->right = _insert(tree->right, ident, value);
+    } else {
+        return tree;
     }
 
     _update(tree);
