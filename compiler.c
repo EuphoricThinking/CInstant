@@ -12,12 +12,21 @@
 #include <string.h>
 #include <libgen.h>
 #include <unistd.h>
+#include <stdint.h>
+
+// TODO check for max values
+uint32_t last_register = 0;
 
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
 #include "compiler_constants.h"
 #include "llvm_commands.h"
+
+uint32_t get_new_register_increase_previous() {
+  return last_register++;
+}
+
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -138,7 +147,6 @@ void free_names(names_extensions* names) {
 void create_shell_command(names_extensions* names) {
   fclose(fopen(HELPER_NAME, "w"));
   FILE* helper_script = fopen(HELPER_NAME, "a");
-  fprintf(helper_script, "set -ex\n");
   fprintf(helper_script, LLVM_AS_START);
   fprintf(helper_script, names->ll_ext);
   fprintf(helper_script, LLVM_AS_END);
@@ -197,6 +205,8 @@ int main(int argc, char ** argv)
     fprintf(opened_ll_file, DECLARE_PRINT_INT_MAIN);
 
     printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
+
+    printf("%d %d %d\n", last_register, get_new_register_increase_previous(), last_register);
 
 
     iterate_over_program(parse_tree, opened_ll_file);
