@@ -32,6 +32,7 @@ int get_new_register_increase_previous() {
   return last_register++;
 }
 
+// TODO change to single fprintf
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -47,20 +48,43 @@ void print_value(FILE* ll_to_append, int value) {
   fprintf(ll_to_append, PRINT_INT_END);
 }
 
+void print_variable(FILE* ll_to_append, char* register_name) {
+  fprintf(ll_to_append, "%s%s%s%s%s", LOAD_START, register_name, LOAD_MIDDLE, register_name, LOAD_END);
+  fprintf(ll_to_append, PRINT_VAR_START);
+  fprintf(ll_to_append, "%s", register_name);
+  fprintf(ll_to_append, PRINT_VAR_END);
+}
+
+void store_value(FILE* ll_to_append, char* register_name, int value) {
+  fprintf(ll_to_append, ALLOCA_START);
+  fprintf(ll_to_append, "%s", register_name);
+  fprintf(ll_to_append, ALLOCA_END);
+
+  fprintf(ll_to_append, STORE_START_VALUE);
+  fprintf(ll_to_append, "%d", value);
+  fprintf(ll_to_append, STORE_MIDDLE);
+  fprintf(ll_to_append, "%s", register_name);
+  fprintf(ll_to_append, STORE_END_REGISTER);
+}
+
+// load and print
+
 void execute_expression(Exp expression, FILE* ll_to_append) {
   Node* found = NULL;
   switch (expression->kind) {
+    // single expression to print
     case is_ExpLit:
       printf("%d\n", expression->u.explit_.integer_);
       print_value(ll_to_append, expression->u.explit_.integer_);
 
       break;
 
+    // single variable to print
     case is_ExpVar:
       printf("variable\n");
       found = search(assignment_dictionary, expression->u.expvar_.ident_);
       if (!found) printf("not found\n");
-      print_value(ll_to_append, found->value);
+      print_variable(ll_to_append, found->ident);
 
       break;
   }
@@ -69,6 +93,7 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
   Node* found = NULL;
   switch (exp->kind) {
+    // ident = exp.int
     case is_ExpLit:
       printf("literal\n");
       found = search(assignment_dictionary, ident);
@@ -81,6 +106,8 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
         char* new_ident = strdup(ident);
         printf("cmp %d\n", strcmp(new_ident, ident));
         assignment_dictionary = insert(assignment_dictionary, new_ident, value);
+
+        store_value(ll_to_append, ident, value);
       }
 
       break;
