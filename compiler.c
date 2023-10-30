@@ -78,8 +78,8 @@ void store_value(FILE* ll_to_append, char* register_name, int value) {
 }
 
 void store_register(FILE* ll_to_append, char* register_name, int register_num) {
-  fprintf(ll_to_append, STORE_START_VALUE);
-  fprintf(ll_to_append, "%%d", value);
+  fprintf(ll_to_append, "%s%%%d", STORE_START_VALUE, register_num);
+ // fprintf(ll_to_append, "%d", register_num);
   fprintf(ll_to_append, STORE_MIDDLE);
   fprintf(ll_to_append, "%s", register_name);
   fprintf(ll_to_append, STORE_END_REGISTER);

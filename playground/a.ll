@@ -17,5 +17,13 @@ define i32 @main() {
 	call void @printInt(i32 %5)
 	%load_3 = load i32, i32* %b
 	call void @printInt(i32 %load_3)
+	%load_4 = load i32, i32* %a
+	%load_5 = load i32, i32* %b
+	%6 = mul i32 2, %load_5
+	%7 = add i32 %load_4, %6
+	%c = alloca i32
+	store i32 %7, i32* %c
+	%load_6 = load i32, i32* %c
+	call void @printInt(i32 %load_6)
 	ret i32 0
 }
