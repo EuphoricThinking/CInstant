@@ -14,17 +14,17 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <inttypes.h>
-
-#define UINT32_FORMATTER PRIu32
-
-// TODO check for max values
-int last_register = 0;
-
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
 #include "compiler_constants.h"
 #include "llvm_commands.h"
+
+#define UINT32_FORMATTER PRIu32
+
+// TODO check for max values
+
+int last_register = 0;
 
 int get_new_register_increase_previous() {
   return last_register++;
@@ -209,7 +209,10 @@ int main(int argc, char ** argv)
 
     printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
 
-    printf("ha%d %d %d\n", last_register, get_new_register_increase_previous(), last_register);
+    int prev = last_register;
+    int next = get_new_register_increase_previous();
+    
+    printf("ha%d %d %d\n", prev, next, last_register);
 
 
     iterate_over_program(parse_tree, opened_ll_file);
@@ -225,10 +228,10 @@ int main(int argc, char ** argv)
 
     extern char** environ;
 
-    if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
+    // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
 
-      return 1;
-    }
+    //   return 1;
+    // }
 
     // int call_result = system(COMPILE_TO_BC_COMMAND);
     // printf("%d i chuj\n", call_result);
