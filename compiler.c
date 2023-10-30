@@ -19,12 +19,14 @@
 #include "grammar/Absyn.h"
 #include "compiler_constants.h"
 #include "llvm_commands.h"
+#include "cavl.h"
 
 #define UINT32_FORMATTER PRIu32
 
 // TODO check for max values
 
 int last_register = 0;
+Node* assignment_dictionary = NULL;
 
 int get_new_register_increase_previous() {
   return last_register++;
@@ -54,9 +56,36 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
       break;
   }
 }
+
+void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
+  Node* found = NULL;
+  switch (exp->kind) {
+    case is_ExpLit:
+      found = search(assignment_dictionary, ident);
+      int value = exp->u.explit_.integer_;
+
+      if (found) {
+        found->value = value;
+      }
+      else {
+        char* new_ident = strdup(ident);
+        insert(assignment_dictionary, new_ident, value);
+      }
+
+      break;
+
+    case is_ExpVar:
+      found = search(assignment_dictionary, ident);
+      print_value(ll_to_append, found->value);
+  }
+}
+
 void execute_statement(Stmt single_statement, FILE* ll_to_append) {
   if (single_statement->kind == is_SExp) {
       execute_expression(single_statement->u.sexp_.exp_, ll_to_append);
+  }
+  else if (single_statement->kind == is_SAss) {
+      execute_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_, ll_to_append);
   }
 }
 
@@ -227,6 +256,8 @@ int main(int argc, char ** argv)
     fclose(opened_ll_file);
 
     extern char** environ;
+
+    free_tree(assignment_dictionary);
 
     // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
 

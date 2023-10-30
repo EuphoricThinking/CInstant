@@ -1,10 +1,8 @@
 #include "cavl.h"
 #include <string.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
-Node* insert(Node* tree, char* ident, int value) {
-    return _insert(tree, ident, value);
-}
+
 
 // void remove(Node* tree, char* ident) {
 //     tree = _remove(tree, ident);
@@ -37,7 +35,7 @@ static void _update_height(Node* tree) {
 //     }
 // }
 
-static void _rotate_left(Node* tree) {
+static Node* _rotate_left(Node* tree) {
     Node* right_child_to_go_up = tree->right;
     Node* left_child_to_switch_right = right_child_to_go_up->left;
 
@@ -50,7 +48,7 @@ static void _rotate_left(Node* tree) {
     return right_child_to_go_up;
 }
 
-static void _rotate_right(Node* old_root) {
+static Node* _rotate_right(Node* old_root) {
     Node* left_child_to_go_up = old_root->left;
     Node* right_child_to_switch_left = left_child_to_go_up->right;
 
@@ -63,7 +61,7 @@ static void _rotate_right(Node* old_root) {
     return left_child_to_go_up;
 }
 
-static void _update(Node* tree) {
+static Node* _update(Node* tree, char* ident) {
     int height_left = get_height(tree->left);
     int height_right = get_height(tree->right);
 
@@ -134,7 +132,7 @@ static Node* _insert(Node* tree, char* ident, int value) {
         return tree;
     }
 
-    return _update(tree);
+    return _update(tree, ident);
 }
 
 void free_tree(Node* tree) {
@@ -163,6 +161,10 @@ Node* search(Node* tree, char* ident) {
     else {
         return tree;
     }
+}
+
+void insert(Node* tree, char* ident, int value) {
+    tree= _insert(tree, ident, value);
 }
 
 
