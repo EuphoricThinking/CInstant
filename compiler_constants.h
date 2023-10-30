@@ -4,6 +4,7 @@
 typedef struct names_extensions {
     char* ll_ext;
     char* bc_ext;
+    size_t len;
 } names_extensions;
 
 #define STDIN_STR_LEN 7

@@ -1,2 +1,5 @@
 declare void @printInt(i32)
-call void @printInt(i32 42)
+define i32 @main() {
+	call void @printInt(i32 42)
+	ret i32 0
+}

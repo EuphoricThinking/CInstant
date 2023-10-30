@@ -77,6 +77,7 @@ names_extensions* get_ll_filename(char* basename) {
 
     result->ll_ext = stdin_name;
     result->bc_ext = stdin_bc;
+    result->len = STDIN_BC_LEN;
     // names_extensions result = { .ll_ext = stdin_name, .bc_ext = stdin_bc};
     return result;
   }
@@ -118,6 +119,7 @@ names_extensions* get_ll_filename(char* basename) {
     //return {ll_filename, bc_filename};
     result->ll_ext = ll_filename;
     result->bc_ext = bc_filename;
+    result->len = core_size + BC_LEN;
 
     //names_extensions result = { .ll_ext = ll_filename, .bc_ext = bc_filename};
     return result;
@@ -129,6 +131,20 @@ void free_names(names_extensions* names) {
   free(names->ll_ext);
   free(names->bc_ext);
   free(names);
+}
+
+// TODO check for errors
+void create_shell_command(names_extensions* names) {
+  fclose(fopen(HELPER_NAME, "w"));
+  FILE* helper_script = fopen(HELPER_NAME, "a");
+  fprintf(helper_script, "set -ex\n");
+  fprintf(helper_script, LLVM_AS_START);
+  fprintf(helper_script, names->ll_ext);
+  fprintf(helper_script, LLVM_AS_END);
+  fprintf(helper_script, LLVM_LINK_START);
+  fprintf(helper_script, names->bc_ext);
+  fprintf(helper_script, LLVM_LINK_END);
+  fclose(helper_script);
 }
 
 int main(int argc, char ** argv)
@@ -177,7 +193,7 @@ int main(int argc, char ** argv)
     // Erase the file content if the file has been already created
     fclose(fopen(ll_name, "w"));
     FILE* opened_ll_file = fopen(ll_name, "a");
-    fprintf(opened_ll_file, DECLARE_PRINT_INT);
+    fprintf(opened_ll_file, DECLARE_PRINT_INT_MAIN);
 
     printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
 
@@ -185,6 +201,14 @@ int main(int argc, char ** argv)
     iterate_over_program(parse_tree, opened_ll_file);
 
     free_Program(parse_tree);
+
+    fprintf(opened_ll_file, ZERO_RET_MAIN);
+    fprintf(opened_ll_file, END_MAIN_BRACKET);
+
+    create_shell_command(new_name);
+    int call_result = system(COMPILE_TO_BC_COMMAND);
+    printf("%d i chuj\n", call_result);
+    
 
     free_names(new_name);
     fclose(opened_ll_file);
