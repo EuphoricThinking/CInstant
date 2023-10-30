@@ -1,0 +1,2 @@
+.method static 
+.end method
