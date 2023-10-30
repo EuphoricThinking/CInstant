@@ -22,8 +22,12 @@
 #define LOAD_END "\n"
 
 #define ADD_START "\tadd i32 "
-#define ADD_MIDDLE ", "
-#define ADD_END "\n"
+#define MUL_START "\tmul i32 "
+#define DIV_START "\tsdiv i32 "
+#define SUB_START "\tsub i32 "
+
+#define ARITHM_MIDDLE ", "
+#define ARITHM_END "\n"
 
 #define LLVM_LINK_START "llvm-link -o "
 #define LLVM_LINK_END " ./build/temp.bc ./build/runtime.bc "
@@ -34,6 +38,8 @@
 #define COMPILE_TO_BC_COMMAND "echo \"dupa\" > dupa.txt && bash ./build/HELPER.sh"
 
 #define BASH_COMMAND "/bin/sh"
+
+enum Op_type {ADD, DIV, MUL, SUB};
 
 
 #endif

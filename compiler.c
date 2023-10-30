@@ -90,17 +90,43 @@ void fprintf_register_var_or_literal(arithmetic_result arm_res, FILE* ll_to_appe
   }
 }
 
-void perform_addition_assign_reg(int register_result, arithmetic_result expr1, arithmetic_result expr2, FILE* ll_to_append) {
+void perform_arithm_op_assign_reg(int register_result, arithmetic_result expr1, arithmetic_result expr2, FILE* ll_to_append, enum Op_type operation) {
 
-  fprintf(ll_to_append, "%%%d = %s", register_result, ADD_START);
-  
+  switch (operation) {
+    case ADD:
+      fprintf(ll_to_append, "%%%d = %s", register_result, ADD_START);
+      break;
+    case DIV:
+      fprintf(ll_to_append, "%%%d = %s", register_result, DIV_START);
+      break;
+    case MUL:
+      fprintf(ll_to_append, "%%%d = %s", register_result, MUL_START);
+      break;
+    case SUB:
+      fprintf(ll_to_append, "%%%d = %s", register_result, SUB_START);
+      break;
+  }
+
   fprintf_register_var_or_literal(expr1, ll_to_append);
 
-  fprintf(ll_to_append, ADD_MIDDLE);
+  fprintf(ll_to_append, ARITHM_MIDDLE);
 
   fprintf_register_var_or_literal(expr2, ll_to_append);
 
-  fprintf(ll_to_append, ADD_END);
+  fprintf(ll_to_append, ARITHM_END);
+}
+
+enum Op_type get_operation_type(Expr expr) {
+  switch (expr->kind) {
+    case is_ExpAdd:
+      return ADD;
+    case is_ExpSub:
+      return SUB;
+    case is_ExpDiv:
+      return DIV;
+    case is_ExpMul:
+      return MUL;
+  }
 }
 
 arithmetic_result parse_tree_calculate(Exp expr, FILE* ll_to_append) {
@@ -126,13 +152,13 @@ arithmetic_result parse_tree_calculate(Exp expr, FILE* ll_to_append) {
 
       return result;
 
-    case is_ExpAdd:
+    default:
       exp1_res = parse_tree_calculate(expr->u.expadd_.exp_1);
       exp2_res = parse_tree_calculate(exp->u.expadd_.exp_2);
 
       new_register = get_new_register_increase_previous();
 
-      perform_addition_assign_reg(new_register, exp1_res, exp2_res, ll_to_append);
+      perform_arithm_op_assign_reg(new_register, exp1_res, exp2_res, ll_to_append, get_operation_type(expr));
 
       result.kind = is_register;
       result.variable = NULL;
