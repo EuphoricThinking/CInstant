@@ -85,6 +85,15 @@ void store_register(FILE* ll_to_append, char* register_name, int register_num) {
   fprintf(ll_to_append, STORE_END_REGISTER);
 }
 
+// the value is in variable
+void store_variable(FILE* ll_to_append, char* register_name, int register_num) {
+  fprintf(ll_to_append, "%s%%load_%d", STORE_START_VALUE, register_num);
+ // fprintf(ll_to_append, "%d", register_num);
+  fprintf(ll_to_append, STORE_MIDDLE);
+  fprintf(ll_to_append, "%s", register_name);
+  fprintf(ll_to_append, STORE_END_REGISTER);
+}
+
 void alloca_assign(FILE* ll_to_append, char* register_name) {
   fprintf(ll_to_append, ALLOCA_START);
   fprintf(ll_to_append, "%s", register_name);
@@ -101,6 +110,12 @@ void initialize_variable_with_register(FILE* ll_to_append, char* register_name, 
   alloca_assign(ll_to_append, register_name);
 
   store_register(ll_to_append, register_name, register_num);
+}
+
+void initialize_variable_with_variable(FILE* ll_to_append, char* register_name, int register_num) {
+  alloca_assign(ll_to_append, register_name);
+
+  store_variable(ll_to_append, register_name, register_num);
 }
 
 int get_expr_value(Exp expr) {
@@ -254,16 +269,28 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
     default:
       arm_res = parse_tree_calculate(exp, ll_to_append);
       register_num = arm_res.register_num;
+      if (arm_res.kind == is_variable) printf("var%d\n", is_variable);
+      printf("%s %d %d\n", ident, arm_res.kind, arm_res.register_num);
 
       if (found) {
         found->value = value;
-        store_register(ll_to_append, ident, register_num);
+        if (arm_res.kind == is_register) {
+          store_register(ll_to_append, ident, register_num);
+        }
+        else { //assignment from varuabke
+          store_variable(ll_to_append, ident, register_num);
+        }
       }
       else {
         char* new_ident = strdup(ident);
-        assignment_dictionary = insert(assignment_dictionary, new_ident, register_num); // -1 ough to be
+        assignment_dictionary = insert(assignment_dictionary, new_ident, register_num); // -1 ough to b
 
-        initialize_variable_with_register(ll_to_append, ident, register_num);
+        if (arm_res.kind == is_register) {
+          initialize_variable_with_register(ll_to_append, ident, register_num);
+        }
+        else {
+          initialize_variable_with_variable(ll_to_append, ident, register_num);
+        }
       }
   }
   // switch (exp->kind) {
@@ -404,6 +431,7 @@ void create_shell_command(names_extensions* names) {
 
 int main(int argc, char ** argv)
 {
+  printf("in\n");
   FILE *input;
   Program parse_tree;
   int quiet = 0;
@@ -422,6 +450,8 @@ int main(int argc, char ** argv)
     }
   }
 
+  printf("next\n");
+
   if (filename) {
     input = fopen(filename, "r");
     if (!input) {
@@ -437,7 +467,7 @@ int main(int argc, char ** argv)
 
   if (parse_tree)
   {
-    
+    printf("here\n");
     //char* filename_without_path = basename(filename);
     // printf("%s\n", filename_without_path);
     names_extensions* new_name = get_ll_filename(filename);
