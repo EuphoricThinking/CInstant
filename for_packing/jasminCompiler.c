@@ -19,9 +19,9 @@
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
-#include "cavl.h"
-#include "jasmin_constants.h"
-#include "castree.h"
+#include "lib/cavl.h"
+#include "lib/jasmin_constants.h"
+#include "lib/castree.h"
 
 #define UINT32_FORMATTER PRIu32
 

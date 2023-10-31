@@ -17,9 +17,9 @@
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
-#include "compiler_constants.h"
-#include "llvm_commands.h"
-#include "cavl.h"
+#include "lib/compiler_constants.h"
+#include "lib/llvm_commands.h"
+#include "lib/cavl.h"
 
 #define UINT32_FORMATTER PRIu32
 
