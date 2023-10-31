@@ -47,7 +47,7 @@
 
 #define SWAP "\tswap\n"
 
-#define IRETURN "\tireturn\n"
+#define RETURN "\treturn\n"
 
 #define LOAD "\tload "
 #define STORE "\tstore "
@@ -61,10 +61,18 @@
 
 #define PRINT_STACK 2
 
+#define INIT_BUFF_SIZE 20;
+
 typedef struct names_extenstions {
     char* name;
     char* ext;
 } names_extensions;
+
+typedef struct method_text {
+    char* text;
+    size_t len;
+    size_t cursor;
+} method_text;
 
 
 enum Op_type {ADD, SUB, DIV, MUL};

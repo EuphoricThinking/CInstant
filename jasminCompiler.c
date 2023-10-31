@@ -228,9 +228,9 @@ void print_jasmin_end(FILE* opened) {
   fprintf(opened, END_METHOD);
 }
 
-void print_jasmin_stack_locals(FILE* opened, int locals_size, int stack_size) {
-  fprintf(opened, "%s%d\n", LOCALS_SIZE, locals_size);
-  fprintf(opened, "%s%d\n", STACK_SIZE, stack_size);
+void print_jasmin_stack_locals(FILE* opened) { //}, int locals_size, int stack_size) {
+  fprintf(opened, "%s%d\n", LOCALS_SIZE, max_locals);//locals_size);
+  fprintf(opened, "%s%d\n", STACK_SIZE, max_stack); //stack_size);
 }
 
 Exp get_exp1(Exp exp) {
@@ -417,9 +417,7 @@ int main(int argc, char ** argv)
 
     // TODO add const char*
     // Erase the file content if the file has been already created
-    fclose(fopen(j_name, "w"));
-    FILE* opened_j_file = fopen(j_name, "a");
-    print_jasmin_header(new_name, opened_j_file);
+    
 
     initialize_method_body();
 
@@ -430,6 +428,13 @@ int main(int argc, char ** argv)
     
     printf("ha%d %d %d\n", prev, next, last_register);
 
+    // here we go
+    determine_stack_and_locals(program);
+
+    fclose(fopen(j_name, "w"));
+    FILE* opened_j_file = fopen(j_name, "a");
+    print_jasmin_header(new_name, opened_j_file);
+    print_jasmin_stack_locals(opened_j_file);
 
     iterate_over_program(parse_tree, opened_j_file);
 
