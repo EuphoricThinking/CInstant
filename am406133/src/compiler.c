@@ -218,16 +218,14 @@ void execute_expression(Exp expression, FILE* ll_to_append) {
   switch (expression->kind) {
     // single expression to print
     case is_ExpLit:
-      printf("%d\n", expression->u.explit_.integer_);
       print_value(ll_to_append, expression->u.explit_.integer_);
 
       break;
 
     // single variable to print
     case is_ExpVar:
-      printf("variable\n");
       found = search(assignment_dictionary, expression->u.expvar_.ident_);
-      if (!found) printf("not found\n");
+      if (!found)  return;
       print_variable(ll_to_append, found->ident);
 
       break;
@@ -263,8 +261,6 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
     default:
       arm_res = parse_tree_calculate(exp, ll_to_append);
       register_num = arm_res.register_num;
-      if (arm_res.kind == is_variable) printf("var%d\n", is_variable);
-      printf("%s %d %d\n", ident, arm_res.kind, arm_res.register_num);
 
       if (found) {
         found->value = value;
@@ -382,7 +378,6 @@ void create_shell_command(names_extensions* names) {
 
 int main(int argc, char ** argv)
 {
-  printf("in\n");
   FILE *input;
   Program parse_tree;
   int quiet = 0;
@@ -401,7 +396,6 @@ int main(int argc, char ** argv)
     }
   }
 
-  printf("next\n");
 
   if (filename) {
     input = fopen(filename, "r");
@@ -418,7 +412,6 @@ int main(int argc, char ** argv)
 
   if (parse_tree)
   {
-    printf("here\n");
     names_extensions* new_name = get_ll_filename(filename);
     char* ll_name = new_name->ll_ext;
 
@@ -427,12 +420,10 @@ int main(int argc, char ** argv)
     FILE* opened_ll_file = fopen(ll_name, "a");
     fprintf(opened_ll_file, DECLARE_PRINT_INT_MAIN);
 
-    printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
 
     int prev = last_register;
     int next = get_new_register_increase_previous();
     
-    printf("ha%d %d %d\n", prev, next, last_register);
 
 
     iterate_over_program(parse_tree, opened_ll_file);
@@ -447,8 +438,6 @@ int main(int argc, char ** argv)
     fclose(opened_ll_file);
 
     extern char** environ;
-    printf("printing\n");
-    print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
 

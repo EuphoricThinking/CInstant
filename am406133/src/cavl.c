@@ -61,7 +61,6 @@ static Node* _update(Node* tree, char* ident) {
     tree->height = max(height_left, height_right) + 1;
 
     int balance_factor = height_left - height_right;
-    printf("bal%d\n", balance_factor);
 
 
     int cmp_child;
@@ -105,7 +104,6 @@ static Node* _update(Node* tree, char* ident) {
 // Perform strdup earlier for an identifier
 static Node* _insert(Node* tree, char* ident, int value) {
     if (!tree) {
-        printf("inserting\n");
         Node* new_node = malloc(sizeof(Node));
         new_node->ident = ident;
         new_node->value = value;
@@ -118,18 +116,14 @@ static Node* _insert(Node* tree, char* ident, int value) {
 
     int comp_result = strcmp(ident, tree->ident);
     if (comp_result < 0) {
-        printf("left\n");
         tree->left = _insert(tree->left, ident, value);
     }
     else if (comp_result > 0) {
-        printf("right\n");
         tree->right = _insert(tree->right, ident, value);
     } else {
-        printf("same\n");
         return tree;
     }
 
-    printf("update\n");
     return _update(tree, ident);
 }
 
@@ -149,7 +143,6 @@ void free_tree(Node* tree) {
 
         tree->left = NULL;
         tree->right = NULL;
-        printf("FREEING %s\n", tree->ident);
         // should be satisfied
         free(tree->ident);
         tree->ident = NULL;

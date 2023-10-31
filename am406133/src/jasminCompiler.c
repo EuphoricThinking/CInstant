@@ -115,7 +115,6 @@ void update_stack_limit(int new_value) {
 
 
 void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
-  printf("B %d S %d \n", BIPUSH_LIMIT, SIPUSH_LIMIT);
   int value = get_expr_value(exp);
 
   if (value >= ICONST_RANGE_MIN && value <= ICONST_RANGE_MAX) {
@@ -361,7 +360,6 @@ char* get_dir(char* path) {
   }
   else {
     int diff = abs((int)strlen(path) - (int)strlen(slash_occurence));
-    printf("diff%d\n", diff);
 
     char* dir = malloc(sizeof(char)*(((size_t)diff) + 1));
     memcpy(dir, path, diff);
@@ -414,7 +412,6 @@ names_extensions* get_names(char* filename) {
     memcpy(j_filename + core_size, J_EXT, J_LEN);
 
     int new_len = (strlen(basename(j_filename))  + 1 - J_LEN);
-    printf("L %s%d\n", basename(j_filename), new_len);
     char* single_name = malloc(sizeof(char) * new_len);
     strncpy(single_name, basename(filename), new_len);
     single_name[new_len - 1] = '\0';
@@ -496,7 +493,6 @@ void determine_assignment(Exp exp, Ident ident) {
   Node* found = search(counter, ident);
   if (!found) {
         update_variables_count();
-        printf("IDENT: %s\n", ident);
         counter = insert(counter, strdup(ident), -1);
   }
 
@@ -583,7 +579,6 @@ void create_helper(char* dir, char* filename) {
 
 int main(int argc, char ** argv)
 {
-  printf("in\n");
   FILE *input;
   Program parse_tree;
   int quiet = 0;
@@ -602,7 +597,6 @@ int main(int argc, char ** argv)
     }
   }
 
-  printf("next\n");
 
   if (filename) {
     input = fopen(filename, "r");
@@ -619,7 +613,6 @@ int main(int argc, char ** argv)
 
   if (parse_tree)
   {
-    printf("here\n");
     names_extensions* new_name = get_names(filename);
     char* j_name = new_name->ext;
 
@@ -627,12 +620,10 @@ int main(int argc, char ** argv)
     create_helper(dir, j_name);
     free(dir);
 
-    printf("%s\n%s\n", new_name->ext, new_name->name);
 
     int prev = last_register;
     int next = get_new_register_increase_previous();
     
-    printf("ha%d %d %d\n", prev, next, last_register);
 
     // here we go
     determine_stack_and_locals(parse_tree);
@@ -642,13 +633,9 @@ int main(int argc, char ** argv)
     print_jasmin_header(new_name, opened_j_file);
     print_jasmin_stack_locals(opened_j_file);
 
-    print_tree(counter);
-    printf("before free\n");
-
     free_tree(counter);
     counter = NULL;
 
-    printf("after free\n");
 
     iterate_over_program(parse_tree, opened_j_file);
 
@@ -659,8 +646,6 @@ int main(int argc, char ** argv)
     fclose(opened_j_file);
 
     extern char** environ;
-    printf("printing\n");
-    print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
     
