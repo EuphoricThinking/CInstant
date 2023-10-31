@@ -1,6 +1,6 @@
 all:
-	gcc -g compiler.c lib/cavl.c grammar/Parser.c grammar/Lexer.c grammar/Absyn.c -o insc_llvm -Igrammar -Ilib
-	gcc -g jasminCompiler.c lib/cavl.c grammar/Parser.c grammar/Lexer.c grammar/Absyn.c lib/castree.c -o insc_jvm -Igrammar -Ilib
+	gcc -g src/compiler.c src/cavl.c src/Parser.c src/Lexer.c src/Absyn.c -o insc_llvm -Isrc
+	gcc -g src/jasminCompiler.c src/cavl.c src/Parser.c src/Lexer.c src/Absyn.c src/castree.c -o insc_jvm -Isrc
 
 clean:
 	rm insc_jvm insc_llvm

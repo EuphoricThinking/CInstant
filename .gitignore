@@ -6,3 +6,4 @@ for_packing/build/runtime.ll
 for_packing/build/temp.bc
 for_packing/insc_jvm
 for_packing/insc_llvm
+unpacker

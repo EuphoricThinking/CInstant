@@ -14,12 +14,12 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include "grammar/Parser.h"
+#include "Parser.h"
 //#include "grammar/Printer.h"
-#include "grammar/Absyn.h"
-#include "lib/compiler_constants.h"
-#include "lib/llvm_commands.h"
-#include "lib/cavl.h"
+#include "Absyn.h"
+#include "compiler_constants.h"
+#include "llvm_commands.h"
+#include "cavl.h"
 
 #define UINT32_FORMATTER PRIu32
 

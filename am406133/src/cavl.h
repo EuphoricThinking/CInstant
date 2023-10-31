@@ -1,7 +1,10 @@
+#ifndef CAVL_HEADER
+#define CAVL_HEADER
+
 #include <stdint.h>
 
-#include "../grammar/Parser.h"
-#include "../grammar/Absyn.h"
+#include "Parser.h"
+#include "Absyn.h"
 
 typedef struct Node {
     //int16_t balance_factor; //reduce to smaller
@@ -17,3 +20,5 @@ Node* insert(Node* tree, char* ident, int value);
 // void remove(Node* tree, char* ident);
 void free_tree(Node* tree);
 void print_tree(Node* tree);
+
+#endif

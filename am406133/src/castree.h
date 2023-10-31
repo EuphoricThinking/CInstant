@@ -1,4 +1,4 @@
-#include "../grammar/Absyn.h"
+#include "Absyn.h"
 #include <stdbool.h>
 
 typedef struct ast_node {
