@@ -22,6 +22,9 @@
 #define GET_PRINTER "\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n"
 #define INVOKE_PRINTER "\tinvokevirtual java/io/PrintStream/println(I)V\n"
 
+#define CALL_JAVA_D "java -jar ./lib/jasmin.jar -d "
+#define CALL_JAVA "java -jar ./lib/jasmin.jar "
+
 // push onto the stack
 #define ICONST_RANGE_MIN 0
 #define ICONST_RANGE_MAX 5
@@ -64,6 +67,9 @@
 #define PRINT_STACK 2
 
 #define INIT_BUFF_SIZE 20
+
+#define HELPER_JASM "./build/helper_jasm.sh"
+#define BASH_COMMAND "/bin/sh"
 
 typedef struct names_extenstions {
     char* name;

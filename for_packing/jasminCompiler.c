@@ -306,6 +306,7 @@ void execute_assignment(Exp exp, Ident ident, FILE* opened) {
   }
 }  
 
+
 void execute_expression(Exp exp, FILE* opened) {
   Node* found;
   switch(exp->kind) {
@@ -370,11 +371,36 @@ void iterate_over_program(Program program, FILE* opened) {
   execute_statements_list(statements, opened);
 }
 
-names_extensions* get_names(char* basename) {
+char* get_dir(char* path) {
+  char* slash_occurence = strrchr(path, '/');
+  if (!slash_occurence) {
+    return NULL;
+  }
+  else {
+    int diff = abs((int)strlen(path) - (int)strlen(slash_occurence));
+    printf("diff%d\n", diff);
+
+    char* dir = malloc(sizeof(char)*(((size_t)diff) + 1));
+    memcpy(dir, path, diff);
+    if (diff != 0) {
+      dir[diff] = '\0';
+
+      return dir;
+    }
+    else {
+      free(dir);
+
+      return strdup(path);
+    }
+  }
+}
+
+// TODO test for stdin
+names_extensions* get_names(char* filename) {
   char* dot_occurence;
 
   names_extensions* result = malloc(sizeof(names_extensions));
-  if (!basename || !(dot_occurence = strrchr(basename, '.')) || dot_occurence == basename) {
+  if (!filename || !(dot_occurence = strrchr(filename, '.')) || dot_occurence == filename) {
     char* stdin_name = malloc(sizeof(char) * STDIN_NAME_LEN); 
     strcpy(stdin_name, STDIN_NAME);
     char* stdin_j = malloc(sizeof(char) * STDIN_J_LEN);
@@ -388,7 +414,7 @@ names_extensions* get_names(char* basename) {
    ;
 
   
-    int basename_len = (int) strlen(basename);
+    int basename_len = (int) strlen(filename);
     // only the extension
     int ext_len = (int) strlen(dot_occurence + 1);
     int core_size;
@@ -402,13 +428,15 @@ names_extensions* get_names(char* basename) {
 
     char* j_filename = malloc(((size_t) core_size)*sizeof(char) + J_LEN);
 
-    memcpy(j_filename, basename, core_size);
+    memcpy(j_filename, filename, core_size);
     memcpy(j_filename + core_size, J_EXT, J_LEN);
     // ll_filename[core_size + LL_LEN - 1] = '\0';
 
-    char* single_name = malloc(sizeof(char) * core_size + 1);
-    strncpy(single_name, basename, core_size);
-    single_name[core_size - 1] = '\0';
+    int new_len = (strlen(basename(j_filename))  + 1 - J_LEN);
+    printf("L %s%d\n", basename(j_filename), new_len);
+    char* single_name = malloc(sizeof(char) * new_len);
+    strncpy(single_name, basename(filename), new_len);
+    single_name[new_len - 1] = '\0';
 
     //return ll_filename;
     //return {ll_filename, bc_filename};
@@ -564,6 +592,20 @@ void free_list_nodes(ast_node** listtree, int len) {
   free(listtree);
 }
 
+
+void create_helper(char* dir, char* filename) {
+  fclose(fopen(HELPER_JASM, "w"));
+  FILE* helper = fopen(HELPER_JASM, "a");
+
+  if (dir) {
+    fprintf(helper, "%s%s %s", CALL_JAVA_D, dir, filename);
+  }
+  else {
+    fprintf(helper, "%s%s", CALL_JAVA, filename);
+  }
+  fclose(helper);
+}
+
 int main(int argc, char ** argv)
 {
   printf("in\n");
@@ -608,6 +650,11 @@ int main(int argc, char ** argv)
     names_extensions* new_name = get_names(filename);
     // printf("%s\n", new_name);
     char* j_name = new_name->ext;
+
+    char* dir = get_dir(filename);
+    printf("dir%s\n", dir);
+    create_helper(dir, j_name);
+    free(dir);
 
     // TODO add const char*
     // Erase the file content if the file has been already created
@@ -668,12 +715,13 @@ int main(int argc, char ** argv)
     print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
+    
     //free_body();
 
-    // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
+    if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_JASM, NULL, environ) == -1) {
 
-    //   return 1;
-    // }
+      return 1;
+    }
 
     // int call_result = system(COMPILE_TO_BC_COMMAND);
     // printf("%d i chuj\n", call_result);
