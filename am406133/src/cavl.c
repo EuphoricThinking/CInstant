@@ -5,9 +5,6 @@
 
 
 
-// void remove(Node* tree, char* ident) {
-//     tree = _remove(tree, ident);
-// }
 
 static int max(int a, int b) {
     if (a < b) return b;
@@ -30,11 +27,6 @@ static void _update_height(Node* tree) {
     tree->height = max(height_left, height_right) + 1;
 }
 
-// static void _get_balance_factor(Node* tree) {
-//     if (tree->right && tree->left) {
-//         return get_height(tree->left)
-//     }
-// }
 
 static Node* _rotate_left(Node* tree) {
     Node* right_child_to_go_up = tree->right;
@@ -119,7 +111,6 @@ static Node* _insert(Node* tree, char* ident, int value) {
         new_node->value = value;
         new_node->left = NULL;
         new_node->right = NULL;
-        //new_node->balace_factor = 0;
         new_node->height = 1;
 
         return new_node;
@@ -189,19 +180,3 @@ Node* insert(Node* tree, char* ident, int value) {
 }
 
 
-// static Node* _remove(Node* tree, char* ident) {
-//     if (!tree) {
-//         return tree;
-//     }
-
-//     int comp_result = strcmp(ident, tree->left);
-//     if (comp_result < 0) {
-//         tree->left = _remove(tree->left, ident);
-//     }
-//     else if (comp_result > 0) {
-//         tree->right = _remove(tree->right, ident);
-//     }
-//     else {
-//         return _free_node(tree);
-//     }
-// }
