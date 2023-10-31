@@ -28,6 +28,8 @@ int last_register = 0;
 Node* assignment_dictionary = NULL;
 int last_load = 0;
 
+int max_stack = 0;
+
 int get_new_register_increase_previous() {
   return last_register++;
 }
@@ -46,76 +48,9 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
-// void print_value(FILE* ll_to_append, int value) {
-//   fprintf(ll_to_append, PRINT_INT_START);
-//   fprintf(ll_to_append, "%d", value);
-//   fprintf(ll_to_append, PRINT_INT_END);
-// }
-
-// void print_register(FILE* ll_to_append, int register_num) {
-//   fprintf(ll_to_append, "%s%d%s", PRINT_REGISTER_START, register_num, PRINT_REGISTER_END);
-// }
-
-// int load_variable(FILE* ll_to_append, char* register_name) {
-//   int new_load = get_new_load();
-//   fprintf(ll_to_append, "%s%d%s%s%s", LOAD_START, new_load, LOAD_MIDDLE, register_name, LOAD_END);
-
-//   return new_load;
-// }
-// void print_variable(FILE* ll_to_append, char* register_name) {
-//   int load_register = load_variable(ll_to_append, register_name);
-//   fprintf(ll_to_append, PRINT_VAR_START);
-//   fprintf(ll_to_append, "%d", load_register);
-//   fprintf(ll_to_append, PRINT_VAR_END);
-// }
-// void store_value(FILE* ll_to_append, char* register_name, int value) {
-//   fprintf(ll_to_append, STORE_START_VALUE);
-//   fprintf(ll_to_append, "%d", value);
-//   fprintf(ll_to_append, STORE_MIDDLE);
-//   fprintf(ll_to_append, "%s", register_name);
-//   fprintf(ll_to_append, STORE_END_REGISTER);
-// }
-
-// void store_register(FILE* ll_to_append, char* register_name, int register_num) {
-//   fprintf(ll_to_append, "%s%%%d", STORE_START_VALUE, register_num);
-//  // fprintf(ll_to_append, "%d", register_num);
-//   fprintf(ll_to_append, STORE_MIDDLE);
-//   fprintf(ll_to_append, "%s", register_name);
-//   fprintf(ll_to_append, STORE_END_REGISTER);
-// }
-
-// // the value is in variable
-// void store_variable(FILE* ll_to_append, char* register_name, int register_num) {
-//   fprintf(ll_to_append, "%s%%load_%d", STORE_START_VALUE, register_num);
-//  // fprintf(ll_to_append, "%d", register_num);
-//   fprintf(ll_to_append, STORE_MIDDLE);
-//   fprintf(ll_to_append, "%s", register_name);
-//   fprintf(ll_to_append, STORE_END_REGISTER);
-// }
-
-// void alloca_assign(FILE* ll_to_append, char* register_name) {
-//   fprintf(ll_to_append, ALLOCA_START);
-//   fprintf(ll_to_append, "%s", register_name);
-//   fprintf(ll_to_append, ALLOCA_END);
-// }
-
-// void initialize_variable(FILE* ll_to_append, char* register_name, int value) {
-//   alloca_assign(ll_to_append, register_name);
-
-//   store_value(ll_to_append, register_name, value);
-// }
-
-// void initialize_variable_with_register(FILE* ll_to_append, char* register_name, int register_num) {
-//   alloca_assign(ll_to_append, register_name);
-
-//   store_register(ll_to_append, register_name, register_num);
-// }
-
-// void initialize_variable_with_variable(FILE* ll_to_append, char* register_name, int register_num) {
-//   alloca_assign(ll_to_append, register_name);
-
-//   store_variable(ll_to_append, register_name, register_num);
-// }
+void invoke_printer(FILE* opened) {
+  fprintf(opened, "%s%s", GET_PRINTER, INVOKE_PRINTER);
+}
 
 int get_expr_value(Exp expr) {
   return expr->u.explit_.integer_;
@@ -125,203 +60,16 @@ char* get_expr_ident(Exp expr) {
   return expr->u.expvar_.ident_;
 }
 
-// void fprintf_register_var_or_literal(arithmetic_result arm_res, FILE* ll_to_append) {
-//   if (arm_res.kind == is_variable) {
-//     fprintf(ll_to_append, "%%load_%d", arm_res.register_num);
-//   }
-//   else if (arm_res.kind == is_register) {
-//     fprintf(ll_to_append, "%%%d", arm_res.register_num);
-//   }
-//   else { // literal
-//     fprintf(ll_to_append, "%d", arm_res.value);
-//   }
-// }
 
-// void perform_arithm_op_assign_reg(int register_result, arithmetic_result expr1, arithmetic_result expr2, FILE* ll_to_append, enum Op_type operation) {
-
-//   switch (operation) {
-//     case ADD:
-//       fprintf(ll_to_append, "\t%%%d = %s", register_result, ADD_START);
-//       break;
-//     case DIV:
-//       fprintf(ll_to_append, "\t%%%d = %s", register_result, DIV_START);
-//       break;
-//     case MUL:
-//       fprintf(ll_to_append, "\t%%%d = %s", register_result, MUL_START);
-//       break;
-//     case SUB:
-//       fprintf(ll_to_append, "\t%%%d = %s", register_result, SUB_START);
-//       break;
-//   }
-
-//   fprintf_register_var_or_literal(expr1, ll_to_append);
-
-//   fprintf(ll_to_append, ARITHM_MIDDLE);
-
-//   fprintf_register_var_or_literal(expr2, ll_to_append);
-
-//   fprintf(ll_to_append, ARITHM_END);
-// }
-
-enum Op_type get_operation_type(Exp expr) {
-  switch (expr->kind) {
-    case is_ExpAdd:
-      return ADD;
-    case is_ExpSub:
-      return SUB;
-    case is_ExpDiv:
-      return DIV;
-    case is_ExpMul:
-      return MUL;
-  }
-}
-
-// arithmetic_result parse_tree_calculate(Exp expr, FILE* ll_to_append) {
-//   Node* found;
-//   arithmetic_result result;
-//   arithmetic_result exp1_res;
-//   arithmetic_result exp2_res;
-//   int new_register;
-//   int new_load;
-//   switch (expr->kind) {
-//     case is_ExpLit:
-//       result.kind = is_literal;
-//       result.variable = NULL;
-//       result.register_num = -1;
-//       result.value = get_expr_value(expr);
-
-//       return result;
-
-//     case is_ExpVar:
-//       new_load = load_variable(ll_to_append, get_expr_ident(expr));
-//       result.kind = is_variable;
-//       result.variable = get_expr_ident(expr);
-//       result.register_num = new_load;
-
-//       return result;
-
-//     default:
-//       exp1_res = parse_tree_calculate(expr->u.expadd_.exp_1, ll_to_append);
-//       exp2_res = parse_tree_calculate(expr->u.expadd_.exp_2, ll_to_append);
-
-//       new_register = get_new_register_increase_previous();
-
-//       perform_arithm_op_assign_reg(new_register, exp1_res, exp2_res, ll_to_append, get_operation_type(expr));
-
-//       result.kind = is_register;
-//       result.variable = NULL;
-//       result.register_num = new_register;
-//       result.value = -1;
-
-//       return result;
-//   }
-// }
-// // load and print
-
-// void execute_expression(Exp expression, FILE* ll_to_append) {
-//   Node* found = NULL;
-//   switch (expression->kind) {
-//     // single expression to print
-//     case is_ExpLit:
-//       printf("%d\n", expression->u.explit_.integer_);
-//       print_value(ll_to_append, expression->u.explit_.integer_);
-
-//       break;
-
-//     // single variable to print
-//     case is_ExpVar:
-//       printf("variable\n");
-//       found = search(assignment_dictionary, expression->u.expvar_.ident_);
-//       if (!found) printf("not found\n");
-//       print_variable(ll_to_append, found->ident);
-
-//       break;
-
-//     // whole statement to print
-//     default:
-//       arithmetic_result result = parse_tree_calculate(expression, ll_to_append);
-//       print_register(ll_to_append, result.register_num);
-//   }
-// }
-
-// void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
-//   Node* found = search(assignment_dictionary, ident);
-//   arithmetic_result arm_res;
-//   int value;
-//   int register_num;
-
-//   switch (exp->kind) {
-//     case is_ExpLit:
-//       value = exp->u.explit_.integer_;
-//       if (found) {
-//         found->value = value;
-//         store_value(ll_to_append, ident, value);
-//       }
-//       else {
-//         char* new_ident = strdup(ident);
-//         assignment_dictionary = insert(assignment_dictionary, new_ident, value);
-
-//         initialize_variable(ll_to_append, ident, value);
-//       }
-//       break;
-
-//     default:
-//       arm_res = parse_tree_calculate(exp, ll_to_append);
-//       register_num = arm_res.register_num;
-//       if (arm_res.kind == is_variable) printf("var%d\n", is_variable);
-//       printf("%s %d %d\n", ident, arm_res.kind, arm_res.register_num);
-
-//       if (found) {
-//         found->value = value;
-//         if (arm_res.kind == is_register) {
-//    //       store_register(ll_to_append, ident, register_num);
-//         }
-//         else { //assignment from varuabke
-//           store_variable(ll_to_append, ident, register_num);
-//         }
-//       }
-//       else {
-//         char* new_ident = strdup(ident);
-//         assignment_dictionary = insert(assignment_dictionary, new_ident, register_num); // -1 ough to b
-
-//         if (arm_res.kind == is_register) {
-//           initialize_variable_with_register(ll_to_append, ident, register_num);
-//         }
-//         else {
-//           initialize_variable_with_variable(ll_to_append, ident, register_num);
-//         }
-//       }
-//   }
-//   // switch (exp->kind) {
-//   //   // ident = exp.int
-//   //   case is_ExpLit:
-//   //     printf("literal\n");
-//   //     found = search(assignment_dictionary, ident);
-//   //     int value = exp->u.explit_.integer_;
-
-//   //     if (found) {
-//   //       found->value = value;
-//   //       store_value(ll_to_append, ident, value);
-//   //     }
-//   //     else {
-//   //       char* new_ident = strdup(ident);
-//   //       printf("cmp %d\n", strcmp(new_ident, ident));
-//   //       assignment_dictionary = insert(assignment_dictionary, new_ident, value);
-
-//   //       initialize_variable(ll_to_append, ident, value);
-//   //     }
-
-//   //     break;
-
-//   //   // an expression x = 2*4
-//   //   default:
-//   //     arm_res = parse_tree_calculate(exp, ll_to_append);
-
-//   // }
-// }
 
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
-void execute_expression(Exp exp, FILE* ll_to_append) {}
+void execute_expression(Exp exp, FILE* ll_to_append) {
+  switch(exp->kind) {
+    // print literal
+    case is_ExpLit:
+      
+  }
+}
 
 void execute_statement(Stmt single_statement, FILE* ll_to_append) {
   if (single_statement->kind == is_SExp) {
@@ -368,16 +116,7 @@ names_extensions* get_names(char* basename) {
 
    ;
 
-  // // Null pointer or the same as basename pointer
-  // if (! dot_occurence || dot_occurence == basename) {
-  //   //return NULL;
-  //   // Return only stdin.ll
-  //   char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
-  //   strcpy(stdin_name, STDIN_NAME);
-
-  //   return stdin_name;
-  // }
-  // else {
+  
     int basename_len = (int) strlen(basename);
     // only the extension
     int ext_len = (int) strlen(dot_occurence + 1);
@@ -417,18 +156,7 @@ void free_names(names_extensions* names) {
   free(names);
 }
 
-// // TODO check for errors
-// void create_shell_command(names_extensions* names) {
-//   fclose(fopen(HELPER_NAME, "w"));
-//   FILE* helper_script = fopen(HELPER_NAME, "a");
-//   fprintf(helper_script, LLVM_AS_START);
-//   fprintf(helper_script, names->ll_ext);
-//   fprintf(helper_script, LLVM_AS_END);
-//   fprintf(helper_script, LLVM_LINK_START);
-//   fprintf(helper_script, names->bc_ext);
-//   fprintf(helper_script, LLVM_LINK_END);
-//   fclose(helper_script);
-// }
+
 
 void print_jasmin_header(names_extensions* names, FILE* opened) {
   fprintf(opened, "%s%s\n%s", CLASS_BEGINNING, names->name, SUPER_DECL);
@@ -443,6 +171,7 @@ void print_jasmin_stack_locals(FILE* opened, int locals_size, int stack_size) {
   fprintf(opened, "%s%d\n", LOCALS_SIZE, locals_size);
   fprintf(opened, "%s%d\n", STACK_SIZE, stack_size);
 }
+
 
 int main(int argc, char ** argv)
 {
