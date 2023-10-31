@@ -1,6 +1,6 @@
 all:
-	gcc -g compiler.c cavl.c testReduce/Parser.c testReduce/Lexer.c testReduce/Absyn.c -o compilerInstant -ItestReduce
-	gcc -g jasminCompiler.c cavl.c testReduce/Parser.c testReduce/Lexer.c testReduce/Absyn.c castree.c -o insc_jvm -ItestReduce
+	gcc -g compiler.c lib/cavl.c grammar/Parser.c grammar/Lexer.c grammar/Absyn.c -o insc_jvm -Igrammar -Ilib
+	gcc -g jasminCompiler.c lib/cavl.c grammar/Parser.c grammar/Lexer.c grammar/Absyn.c lib/castree.c -o insc_jvm -Igrammar -Ilib
 
 clean:
 	rm compilerInstant
