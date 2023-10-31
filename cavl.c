@@ -158,7 +158,7 @@ void free_tree(Node* tree) {
 
         tree->left = NULL;
         tree->right = NULL;
-
+        printf("FREEING %s\n", tree->ident);
         // should be satisfied
         free(tree->ident);
         tree->ident = NULL;

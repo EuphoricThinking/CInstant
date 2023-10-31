@@ -492,10 +492,11 @@ void update_variables_count() {
 }
 
 void determine_assignment(Exp exp, Ident ident) {
-  Node* found = search(assignment_dictionary, ident);
+  Node* found = search(counter, ident);
   if (!found) {
         update_variables_count();
-        counter = insert(counter, strdup(ident), 0);
+        printf("IDENT: %s\n", ident);
+        counter = insert(counter, strdup(ident), -1);
   }
 
   int max_height;
@@ -638,6 +639,7 @@ int main(int argc, char ** argv)
     print_jasmin_header(new_name, opened_j_file);
     print_jasmin_stack_locals(opened_j_file);
 
+    print_tree(counter);
     printf("before free\n");
 
     free_tree(counter);
