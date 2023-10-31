@@ -1,1 +1,1 @@
-java -jar ./lib/jasmin.jar -d ../tsts ../tsts/iload_istore.j
+java -jar ./lib/jasmin.jar out.j

@@ -373,7 +373,10 @@ void iterate_over_program(Program program, FILE* opened) {
 }
 
 char* get_dir(char* path) {
+  printf("BEFBEF\n");
+  if (!path) return NULL;
   char* slash_occurence = strrchr(path, '/');
+  printf("%s\n", slash_occurence);
   if (!slash_occurence) {
     return NULL;
   }
@@ -405,6 +408,8 @@ names_extensions* get_names(char* filename) {
     char* stdin_name = malloc(sizeof(char) * STDIN_NAME_LEN); 
     strcpy(stdin_name, STDIN_NAME);
     char* stdin_j = malloc(sizeof(char) * STDIN_J_LEN);
+    strcpy(stdin_j, STDIN_J);
+    printf("NOOO\n");
 
     result->name = stdin_name;
     result->ext = stdin_j;
@@ -654,9 +659,9 @@ int main(int argc, char ** argv)
     names_extensions* new_name = get_names(filename);
     // printf("%s\n", new_name);
     char* j_name = new_name->ext;
-
+    printf("befj\n");
     char* dir = get_dir(filename);
-    printf("dir%s\n", dir);
+    if (dir) {printf("dir%s\n", dir);}
     create_helper(dir, j_name);
     free(dir);
 

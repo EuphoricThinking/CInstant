@@ -14,8 +14,8 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <inttypes.h>
+
 #include "Parser.h"
-//#include "grammar/Printer.h"
 #include "Absyn.h"
 #include "compiler_constants.h"
 #include "llvm_commands.h"
@@ -23,7 +23,6 @@
 
 #define UINT32_FORMATTER PRIu32
 
-// TODO check for max values
 
 int last_register = 0;
 Node* assignment_dictionary = NULL;
@@ -37,7 +36,6 @@ int get_new_load() {
   return last_load++;
 }
 
-// TODO change to single fprintf
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -357,6 +355,7 @@ names_extensions* get_ll_filename(char* basename) {
     char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
     strcpy(stdin_name, STDIN_NAME);
     char* stdin_bc = malloc(sizeof(char) * STDIN_BC_LEN);
+    strcpy(stdin_bc, STDIN_BC_NAME);
 
     result->ll_ext = stdin_name;
     result->bc_ext = stdin_bc;
