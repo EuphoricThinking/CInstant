@@ -1,4 +1,5 @@
-#include "castee.h"
+#include "castree.h"
+#include <stdlib.h>
 
 void free_tree_ast(ast_node* tree) {
     if (tree) {
@@ -87,7 +88,7 @@ ast_node* get_ast_tree(Exp exp) {
         new_node->height = max(left_height, right_height);
     }
     
-    new_node->expr = expr;
+    new_node->expr = exp;
 
     return new_node;
 }

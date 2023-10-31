@@ -85,7 +85,7 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
-num Op_type get_operation_type(Exp expr) {
+enum Op_type get_operation_type(Exp expr) {
   switch (expr->kind) {
     case is_ExpAdd:
       return ADD;
@@ -190,14 +190,14 @@ void perform_opcode(Exp exp, bool is_right_first, FILE* opened) {
       fprintf(opened, IMUL);
       break;
     case DIV:
-      fprintf(opened, DIV);
+      fprintf(opened, IDIV);
       break;
   }
 }
 
 void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
   if (operation_tree) {
-    Exp exp = operation_tree->exp;
+    Exp exp = operation_tree->expr;
     bool is_right_first;
     Node* found;
 
@@ -230,7 +230,7 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
         }
         // no need for swap if left is first
         else {
-            is_right_first = false
+            is_right_first = false;
             perform_arithmetic(operation_tree->left, opened);
             perform_arithmetic(operation_tree->right, opened);
         }
@@ -645,7 +645,7 @@ int main(int argc, char ** argv)
     print_jasmin_end(opened_j_file);
 
     free_Program(parse_tree);
-    free_list_nodes(list_of_trees);
+    // free_list_nodes(list_of_trees);
 
     // fprintf(opened_ll_file, ZERO_RET_MAIN);
     // fprintf(opened_ll_file, END_MAIN_BRACKET);
