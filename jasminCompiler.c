@@ -291,6 +291,7 @@ void execute_assignment(Exp exp, Ident ident, FILE* opened) {
 
     default:
       ast_node* operation_tree = get_ast_tree(exp);
+      perform_arithmetic(operation_tree, opened);
 
       if (!found) {
         store_new_var(ident, opened);
@@ -331,6 +332,7 @@ void execute_expression(Exp exp, FILE* opened) {
     //print an expression
     default:
       ast_node* operation_tree = get_ast_tree(exp);
+      perform_arithmetic(operation_tree, opened);
       //the last on the stack is the result
       invoke_printer_start(opened);
       fprintf(opened, SWAP);
