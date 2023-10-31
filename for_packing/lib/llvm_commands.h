@@ -40,6 +40,8 @@
 #define HELPER_NAME "./build/HELPER.sh"
 #define COMPILE_TO_BC_COMMAND "echo \"dupa\" > dupa.txt && bash ./build/HELPER.sh"
 
+#define PRINT_INT_DEF "declare i32 @printf(i8*, ...)\n@dnl = internal constant [4 x i8] c\"%d\0A\00\"\ndefine void @printInt(i32 %x) {\t%t0 = getelementptr [4 x i8], [4 x i8]* @dnl, i32 0, i32 0\n\tcall i32 (i8*, ...) @printf(i8* %t0, i32 %x)\n\tret void\n}\n\n"
+
 #define BASH_COMMAND "/bin/sh"
 
 enum Op_type {ADD, DIV, MUL, SUB};

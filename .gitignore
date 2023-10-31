@@ -1,2 +1,8 @@
 for_packing/insc_jvm
 for_packing/insc_llvm
+for_packing/lib/HELPER.sh
+for_packing/build/HELPER.sh
+for_packing/build/runtime.ll
+for_packing/build/temp.bc
+for_packing/insc_jvm
+for_packing/insc_llvm

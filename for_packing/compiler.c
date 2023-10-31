@@ -478,6 +478,7 @@ int main(int argc, char ** argv)
     // Erase the file content if the file has been already created
     fclose(fopen(ll_name, "w"));
     FILE* opened_ll_file = fopen(ll_name, "a");
+    // fprintf(opened_ll_file, PRINT_INT_DEF);
     fprintf(opened_ll_file, DECLARE_PRINT_INT_MAIN);
 
     printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
@@ -505,10 +506,10 @@ int main(int argc, char ** argv)
 
     free_tree(assignment_dictionary);
 
-    // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
+    if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
 
-    //   return 1;
-    // }
+      return 1;
+    }
 
     // int call_result = system(COMPILE_TO_BC_COMMAND);
     // printf("%d i chuj\n", call_result);
