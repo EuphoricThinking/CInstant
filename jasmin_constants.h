@@ -6,7 +6,8 @@
 #define LOCALS_SIZE "\t.limit locals " 
 #define STACK_SIZE "\t.limit stack " 
 
-#define BEGIN_METHOD ".method public static "
+// #define BEGIN_METHOD ".method public static "
+#define BEGIN_METHOD ".method public static main([Ljava/lang/String;)V\n"
 #define END_METHOD ".end method\n"
 #define CLASS_BEGINNING ".class public "
 #define SUPER_DECL ".super java/lang/Object\n"
@@ -18,7 +19,7 @@
 #define STDIN_J "out.j"
 #define STDIN_J_LEN 6
 
-#define GET_PRINTER "\tgetstatic java/lang/System/out Ljava/io/PrintStream\n"
+#define GET_PRINTER "\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n"
 #define INVOKE_PRINTER "\tinvokevirtual java/io/PrintStream/println(I)V\n"
 
 // push onto the stack
@@ -31,7 +32,7 @@
 #define ILOAD_RANGE_MAX 3
 #define ILOAD_SHORT "\tiload_"
 
-#define ICONST_M1 "\ticonst_m1"
+#define ICONST_M1 "\ticonst_m1\n"
 
 #define ISTORE_RANGE_MIN 0
 #define ISTORE_RANGE_MAX 3
@@ -61,7 +62,7 @@
 
 #define PRINT_STACK 2
 
-#define INIT_BUFF_SIZE 20;
+#define INIT_BUFF_SIZE 20
 
 typedef struct names_extenstions {
     char* name;

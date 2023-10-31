@@ -6,5 +6,5 @@ clean:
 	rm compilerInstant
 
 jasm:
-	./insc_jvm vars.ins
-	java -jar ./lib/jasmin.jar vars.j
+	./insc_jvm dummyj.ins
+	java -jar ./lib/jasmin.jar dummyj.j

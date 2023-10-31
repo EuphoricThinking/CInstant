@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <stdbool.h>
+
 #include "grammar/Parser.h"
 //#include "grammar/Printer.h"
 #include "grammar/Absyn.h"
@@ -112,7 +114,7 @@ Exp get_exp1(Exp exp) {
     case is_ExpDiv:
       return exp->u.expdiv_.exp_1;
     default:
-      return exp
+      return exp;
   }
 }
 
@@ -127,7 +129,7 @@ Exp get_exp2(Exp exp) {
     case is_ExpDiv:
       return exp->u.expdiv_.exp_2;
     default:
-      return exp
+      return exp;
   }
 }
 
@@ -155,49 +157,66 @@ void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
   else if (value < SIPUSH_LIMIT) {
     fprintf(opened, "%s%d\n", SIPUSH, value);
   }
+  else if (value == -1) {
+    fprintf(opened, ICONST_M1);
+  }
   else {
     fprintf(opened, "%s%d\n", PUSH, value);
   }
 }
 
+void determine_opcode_load(Exp exp, FILE* opened) {
+  int value = get_expr_value(exp);
+
+  //if 
+}
+
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
 
 void execute_expression(Exp exp, FILE* opened) {
+  Node* found;
   switch(exp->kind) {
-    // print literal
+    // print a literal
     case is_ExpLit:
       invoke_printer_start(opened);
       determine_literal_opcode_push_onto_stack(exp, opened);
       invoke_printer_end(opened);
+
+      break;
+    // print a variable
+    case is_ExpVar:
+      found = search(assignment_dictionary, get_expr_ident(exp));
+      // assigned number - starting from 0
+
   }
 }
 
-void execute_statement(Stmt single_statement, FILE* ll_to_append) {
+void execute_statement(Stmt single_statement, FILE* opened) {
   if (single_statement->kind == is_SExp) {
-      execute_expression(single_statement->u.sexp_.exp_, ll_to_append);
+      execute_expression(single_statement->u.sexp_.exp_, opened);
   }
   else if (single_statement->kind == is_SAss) {
-      execute_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_, ll_to_append);
+      execute_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_, opened);
   }
 }
 
-void execute_statements_list(ListStmt statements, FILE* ll_to_append) {
+void execute_statements_list(ListStmt statements, FILE* opened) {
   // Not null
   if (statements) {
-    execute_statement(statements->stmt_, ll_to_append);
+    execute_statement(statements->stmt_, opened);
 
-    execute_statements_list(statements->liststmt_, ll_to_append);
+    execute_statements_list(statements->liststmt_, opened);
   }
 
 }
-void iterate_over_program(Program program, FILE* ll_to_append) {
+void iterate_over_program(Program program, FILE* opened) {
   if (!program->kind == is_Prog) {
     return;
   }
     
   ListStmt statements = program->u.prog_.liststmt_;
 
-  execute_statements_list(statements, ll_to_append);
+  execute_statements_list(statements, opened);
 }
 
 names_extensions* get_names(char* basename) {
@@ -261,11 +280,11 @@ void free_names(names_extensions* names) {
 
 void print_jasmin_header(names_extensions* names, FILE* opened) {
   fprintf(opened, "%s%s\n%s", CLASS_BEGINNING, names->name, SUPER_DECL);
-  fprintf(opened, "%s%s()V\n", BEGIN_METHOD, names->name);
+  fprintf(opened, BEGIN_METHOD); //"%s%s()V\n", BEGIN_METHOD, names->name);
 }
 
 void print_jasmin_end(FILE* opened) {
-  fprintf(opened, END_METHOD);
+  fprintf(opened, "%s%s", RETURN, END_METHOD);
 }
 
 void print_jasmin_stack_locals(FILE* opened) { //}, int locals_size, int stack_size) {
@@ -321,7 +340,7 @@ void update_variables_count() {
   max_locals++;
 }
 
-void determine_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
+void determine_assignment(Exp exp, Ident ident) {
   Node* found = search(assignment_dictionary, ident);
   if (!found) {
         update_variables_count();
@@ -342,12 +361,12 @@ void determine_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
   }
 }
 
-void determine_statement(Stmt single_statement, FILE* ll_to_append) {
+void determine_statement(Stmt single_statement) {
   if (single_statement->kind == is_SExp) {
-      determine_expression(single_statement->u.sexp_.exp_, ll_to_append);
+      determine_expression(single_statement->u.sexp_.exp_);
   }
   else if (single_statement->kind == is_SAss) {
-      determine_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_, ll_to_append);
+      determine_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_);
   }
 }
 
@@ -355,7 +374,7 @@ void determine_statement_list(ListStmt statements) {
   if (statements) {
     determine_statement(statements->stmt_);
 
-    determine_statements_list(statements->liststmt_);
+    determine_statement_list(statements->liststmt_);
   }
 }
 
@@ -428,7 +447,7 @@ int main(int argc, char ** argv)
     printf("ha%d %d %d\n", prev, next, last_register);
 
     // here we go
-    determine_stack_and_locals(program);
+    determine_stack_and_locals(parse_tree);
 
     fclose(fopen(j_name, "w"));
     FILE* opened_j_file = fopen(j_name, "a");
