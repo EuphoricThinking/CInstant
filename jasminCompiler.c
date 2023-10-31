@@ -184,17 +184,22 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
   if (operation_tree) {
     Exp exp = operation_tree->exp;
     bool is_right_first;
+    Node* found;
 
     switch(exp->kind) {
       case is_ExpLit:
-        invoke_printer_start(opened);
+        //invoke_printer_start(opened);
         determine_literal_opcode_push_onto_stack(exp, opened);
-        invoke_printer_end(opened);
+        //invoke_printer_end(opened);
 
         break;
 
       case is_ExpVar:
-        load_variable(exp, opened);
+        //load_variable(exp, opened);
+        found = search(assignment_dictionary, get_expr_ident(exp));
+
+        if (!found) return; // TODO error handling
+        determine_opcode_load(found->value, opened);
 
         break;
 
@@ -222,7 +227,7 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
 
 void execute_expression(Exp exp, FILE* opened) {
-  // Node* found;
+  Node* found;
   switch(exp->kind) {
     // print a literal
     case is_ExpLit:
@@ -233,14 +238,26 @@ void execute_expression(Exp exp, FILE* opened) {
       break;
     // print a variable
     case is_ExpVar:
-      load_variable(exp, opened);
+      //load_variable(exp, opened);
+      found = search(assignment_dictionary, get_expr_ident(exp));
+
+      if (!found) return; // TODO error handling
+      // assigned number - starting from 0
+      invoke_printer_start(opened);
+      determine_opcode_load(found->value, opened);
+      invoke_printer_end(opened);
 
       break;
 
     //print an expression
     default:
       ast_node* operation_tree = get_ast_tree(exp);
+      //the last on the stack is the result
+      invoke_printer_start(opened);
+      fprintf(opened, SWAP);
+      invoke_printer_end(opened);
       
+      free_tree_ast(operation_tree);
   }
 }
 
