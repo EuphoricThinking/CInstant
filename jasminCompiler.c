@@ -21,6 +21,7 @@
 #include "grammar/Absyn.h"
 #include "cavl.h"
 #include "jasmin_constants.h"
+#include "castree.h"
 
 #define UINT32_FORMATTER PRIu32
 
@@ -133,16 +134,7 @@ Exp get_exp2(Exp exp) {
   }
 }
 
-bool is_leaf(Exp exp) {
-  return exp->kind == is_ExpLit || exp->kind == is_ExpVar;
-}
 
-bool have_both_leaves(Exp exp) {
-  Exp e1 = get_exp1(exp);
-  Exp e2 = get_exp2(exp);
-
-  return is_leaf(e1) && is_leaf(e2);
-}
 
 void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
   int value = get_expr_value(exp);
@@ -165,16 +157,46 @@ void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
   }
 }
 
-void determine_opcode_load(Exp exp, FILE* opened) {
-  int value = get_expr_value(exp);
-
-  //if 
+void determine_opcode_load(int local_num, FILE* opened) {
+  if (local_num >= ILOAD_RANGE_MIN && local_num <= ILOAD_RANGE_MAX) {
+    fprintf(opened, "%s%d\n", ILOAD_SHORT, local_num);
+  }
+  else {
+    fprintf(opened, "%s%d\n", LOAD, local_num);
+  }
 }
 
+void load_variable(Exp exp, FILE* opened) {
+    Node* found = search(assignment_dictionary, get_expr_ident(exp));
+
+    if (!found) return; // TODO error handling
+    // assigned number - starting from 0
+    invoke_printer_start(opened);
+    determine_opcode_load(found->value, opened);
+    invoke_printer_end(opened);
+}
+
+
+
+void perform_arithmetic(Exp exp, FILE* opened) {
+  switch (exp->kind) {
+    case is_ExpLit:
+      determine_literal_opcode_push_onto_stack(exp, opened);
+      break;
+
+    case is_ExpVar:
+      load_variable(exp, opened);
+
+      break;
+
+
+    default:
+  }
+}
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
 
 void execute_expression(Exp exp, FILE* opened) {
-  Node* found;
+  // Node* found;
   switch(exp->kind) {
     // print a literal
     case is_ExpLit:
@@ -185,9 +207,12 @@ void execute_expression(Exp exp, FILE* opened) {
       break;
     // print a variable
     case is_ExpVar:
-      found = search(assignment_dictionary, get_expr_ident(exp));
-      // assigned number - starting from 0
+      load_variable(exp, opened);
 
+      break;
+
+    //print an expression
+    default:
   }
 }
 
@@ -386,6 +411,11 @@ void determine_stack_and_locals(Program program) {
   ListStmt statements = program->u.prog_.liststmt_;
 
   determine_statement_list(statements);
+}
+
+int list_stms_len(ListStmt stms) {
+  if (!stms) return 0;
+  return 1 + list_stms_len(stms->liststmt_);
 }
 
 int main(int argc, char ** argv)
