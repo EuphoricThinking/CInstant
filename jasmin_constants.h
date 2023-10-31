@@ -36,6 +36,7 @@
 
 #define ISTORE_RANGE_MIN 0
 #define ISTORE_RANGE_MAX 3
+#define ISTORE_SHORT "\tistore_"
 
 #define BIPUSH_LIMIT INT8_MAX
 #define SIPUSH_LIMIT INT16_MAX

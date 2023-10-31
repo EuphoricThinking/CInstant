@@ -58,6 +58,12 @@ int last_register = 0;
 Node* assignment_dictionary = NULL;
 int last_load = 0;
 
+// static, no this from 
+int last_local = 0;
+int get_new_local() {
+  return last_local++;
+}
+
 int max_stack = 0;
 int max_locals = 1; // default is 1
 
@@ -147,6 +153,15 @@ void determine_opcode_load(int local_num, FILE* opened) {
   }
 }
 
+void determine_opcode_store(int local_num, FILE* opened) {
+  if (local_num >= ISTORE_RANGE_MIN && local_num <= ISTORE_RANGE_MAX) {
+    fprintf(opened, "%s%d\n", ISTORE_SHORT, local_num);
+  }
+  else {
+    fprintf(opened, "%s%d\n", STORE, local_num);
+  }
+}
+
 void load_variable(Exp exp, FILE* opened) {
     Node* found = search(assignment_dictionary, get_expr_ident(exp));
 
@@ -224,7 +239,59 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
     }
   }
 }
-void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
+
+void store_new_var(Ident ident, FILE* opened) {
+  int new_local_var_num = get_new_local();
+  determine_opcode_store(new_local_var_num, opened);
+  assignment_dictionary = insert(assignment_dictionary, ident, new_local_var_num);
+}
+
+void execute_assignment(Exp exp, Ident ident, FILE* opened) {
+  Node* found = search(assignment_dictionary, ident);
+  Node* another_var;
+  int expr_value;
+  int new_local_var_num;
+  switch (exp->kind) {
+    // x = 3;
+    case is_ExpLit:
+      // expr_value = get_expr_value(exp);
+      // expr val pushed onto stack
+      determine_literal_opcode_push_onto_stack(exp, opened);
+      if (!found) {
+        // store a new variable
+        store_new_var(ident, opened);
+        // new_local_var_num = get_new_local();
+        // determine_opcode_store(new_local_var_num, opened);
+        // assignment_dictionary = insert(assignment_dictionary, ident, new_local_var_num);
+      }
+      else {
+          // store a new value in old local
+          determine_opcode_store(found->value, opened);
+      }
+
+      break;
+
+    // x = y;
+    case is_ExpVar:
+      another_var = search(assignment_dictionary, get_expr_ident(exp));
+      if (!another_var) return;
+
+      // load value
+      determine_opcode_load(another_var->value, opened);
+      
+      if (!found) {
+          store_new_var(ident, opened);
+      }
+      else {
+        determine_opcode_store(found->value, opened);
+      }
+
+      break;
+
+    default:
+      
+  }
+}  
 
 void execute_expression(Exp exp, FILE* opened) {
   Node* found;
