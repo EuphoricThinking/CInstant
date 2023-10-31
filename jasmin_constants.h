@@ -59,6 +59,7 @@
 #define IADD "\tiadd\n"
 #define IDIV "\tidiv\n"
 
+#define PRINT_STACK 2
 
 typedef struct names_extenstions {
     char* name;

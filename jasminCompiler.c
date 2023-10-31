@@ -23,6 +23,33 @@
 #define UINT32_FORMATTER PRIu32
 
 // TODO check for max values
+method_text* method_body;
+
+void initialize_method_body() {
+  method_body = malloc(sizeof(method_body));
+  method_body->text = malloc(sizeof(char) * INIT_BUFF_SIZE);
+  method_body->cursor = 0;
+  method_body->len = INIT_BUFF_SIZE;
+}
+
+void free_body() {
+  free(method_body->text);
+  free(method_body);
+}
+
+void concatenate_at_the_end(char* text) {
+  size_t suff_len = strlen(text);
+
+  if (method_body->cursor + suff_len + 1 < method_body->len) {
+    method_body->len = method_body->len * 2;
+    method_body->text = realloc(method_body->text, method_body->len);
+    // TODO check for errors
+  }
+
+  memcpy(method_body + method_body->cursor, text, suff_len);
+  method_body->cursor += suff_len;
+  // At the end added null pointer
+}
 
 int last_register = 0;
 Node* assignment_dictionary = NULL;
@@ -48,8 +75,17 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
-void invoke_printer(FILE* opened) {
-  fprintf(opened, "%s%s", GET_PRINTER, INVOKE_PRINTER);
+int max(int a, int b) {
+  if (a < b) return b;
+  return a;
+}
+
+void invoke_printer_start(FILE* opened) {
+  fprintf(opened, "%s", GET_PRINTER);
+}
+
+void invoke_printer_end(FILE* opened) {
+  fprintf(opened, "%s", INVOKE_PRINTER);
 }
 
 int get_expr_value(Exp expr) {
@@ -60,14 +96,38 @@ char* get_expr_ident(Exp expr) {
   return expr->u.expvar_.ident_;
 }
 
+void update_stack_limit(int new_value) {
+  max_stack = max(max_stack, new_value);
+}
 
+void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
+  int value = get_expr_value(exp);
+
+  if (value >= ICONST_RANGE_MIN && value <= ICONST_RANGE_MAX) {
+    fprintf(opened, "%s%d\n", ICONST_SHORT, value);
+    //concatenate_at_the_end(I)
+  }
+  else if (value < BIPUSH_LIMIT) {
+    fprintf(opened, "%s%d\n", BIPUSH, value);
+  }
+  else if (value < SIPUSH_LIMIT) {
+    fprintf(opened, "%s%d\n", SIPUSH, value);
+  }
+  else {
+    fprintf(opened, "%s%d\n", PUSH, value);
+  }
+}
 
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
-void execute_expression(Exp exp, FILE* ll_to_append) {
+
+void execute_expression(Exp exp, FILE* opened) {
   switch(exp->kind) {
     // print literal
     case is_ExpLit:
-      
+      update_stack_limit(PRINT_STACK);
+      invoke_printer_start(opened);
+      determine_literal_opcode_push_onto_stack(exp, opened);
+      invoke_printer_end(opened);
   }
 }
 
@@ -172,6 +232,109 @@ void print_jasmin_stack_locals(FILE* opened, int locals_size, int stack_size) {
   fprintf(opened, "%s%d\n", STACK_SIZE, stack_size);
 }
 
+Exp get_exp1(Exp exp) {
+  switch (exp->kind) {
+    case is_ExpAdd:
+      return exp->u.expadd_.exp_1;
+    case is_ExpSub:
+      return exp->u.expsub_.exp_1;
+    case is_ExpMul:
+      return exp->u.expmul_.exp_1;
+    case is_ExpDiv:
+      return exp->u.expdiv_.exp_1;
+    default:
+      return exp
+  }
+}
+
+Exp get_exp2(Exp exp) {
+  switch (exp->kind) {
+    case is_ExpAdd:
+      return exp->u.expadd_.exp_2;
+    case is_ExpSub:
+      return exp->u.expsub_.exp_2;
+    case is_ExpMul:
+      return exp->u.expmul_.exp_2;
+    case is_ExpDiv:
+      return exp->u.expdiv_.exp_2;
+    default:
+      return exp
+  }
+}
+
+bool is_leaf(Exp exp) {
+  return exp->kind == is_ExpLit || exp->kind == is_ExpVar;
+}
+
+bool have_both_leaves(Exp exp) {
+  Exp e1 = get_exp1(exp);
+  Exp e2 = get_exp2(exp);
+
+  return is_leaf(e1) && is_leaf(e2);
+}
+
+void determine_tree(Exp exp) {
+  if (is_leaf(exp)) {
+    return 1;
+  }
+
+  Exp e1 = get_exp1(exp);
+  Exp e2 = get_exp2(exp);
+
+  int subtree1 = determine_tree(e1);
+  int subtree2 = determine_tree(e2);
+
+  if (subtree1 == subtree2) {
+    return subtree1 + 1;
+  }
+  else {
+    return max(subtree1, subtree2);
+  }
+}
+
+void determine_expression(Exp exp) {
+  switch(exp->kind) {
+    // print literal
+    case is_ExpLit:
+      update_stack_limit(PRINT_STACK);
+      // invoke_printer_start(opened);
+      // determine_literal_opcode_push_onto_stack(exp, opened);
+      // invoke_printer_end(opened);
+      break;
+    // print variable
+    case is_ExpVar:
+      update_stack_limit(PRINT_STACK);
+      break;
+    default:
+  }
+}
+
+void determine_statement(Stmt single_statement, FILE* ll_to_append) {
+  if (single_statement->kind == is_SExp) {
+      determine_expression(single_statement->u.sexp_.exp_, ll_to_append);
+  }
+  else if (single_statement->kind == is_SAss) {
+      determine_assignment(single_statement->u.sass_.exp_, single_statement->u.sass_.ident_, ll_to_append);
+  }
+}
+
+void determine_statement_list(ListStmt statements) {
+  if (statements) {
+    determine_statement(statements->stmt_);
+
+    determine_statements_list(statements->liststmt_);
+  }
+}
+
+void determine_stack_and_locals(Program program) {
+  if (!program->kind == is_Prog) {
+    return;
+  }
+    
+  ListStmt statements = program->u.prog_.liststmt_;
+
+  determine_statement_list(statements);
+}
 
 int main(int argc, char ** argv)
 {
@@ -224,6 +387,8 @@ int main(int argc, char ** argv)
     FILE* opened_j_file = fopen(j_name, "a");
     print_jasmin_header(new_name, opened_j_file);
 
+    initialize_method_body();
+
     printf("%s\n%s\n", new_name->ext, new_name->name);
 
     int prev = last_register;
@@ -250,6 +415,7 @@ int main(int argc, char ** argv)
     print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
+    free_body();
 
     // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
 
