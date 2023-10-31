@@ -29,5 +29,14 @@
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 	iload_1
 	invokevirtual java/io/PrintStream/println(I)V
+	iconst_3
+	iconst_4
+	iadd
+	bipush 8
+	imul
+	istore_0
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	iload_0
+	invokevirtual java/io/PrintStream/println(I)V
 	return
 .end method
