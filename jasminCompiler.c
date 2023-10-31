@@ -79,6 +79,18 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
+num Op_type get_operation_type(Exp expr) {
+  switch (expr->kind) {
+    case is_ExpAdd:
+      return ADD;
+    case is_ExpSub:
+      return SUB;
+    case is_ExpDiv:
+      return DIV;
+    case is_ExpMul:
+      return MUL;
+  }
+}
 
 
 void invoke_printer_start(FILE* opened) {
@@ -145,21 +157,66 @@ void load_variable(Exp exp, FILE* opened) {
     invoke_printer_end(opened);
 }
 
+void perform_opcode(Exp exp, bool is_right_first, FILE* opened) {
+  enum Op_type optype = get_operation_type(exp);
 
+  if ((optype == SUB || optype == DIV) && is_right_first) {
+    fprintf(opened, SWAP);
+  }
 
-void perform_arithmetic(Exp exp, FILE* opened) {
-  switch (exp->kind) {
-    case is_ExpLit:
-      determine_literal_opcode_push_onto_stack(exp, opened);
+  switch (optype) {
+    case ADD:
+      fprintf(opened, IADD);
       break;
-
-    case is_ExpVar:
-      load_variable(exp, opened);
-
+    case SUB:
+      fprintf(opened, ISUB);
       break;
+    case MUL:
+      fprintf(opened, IMUL);
+      break;
+    case DIV:
+      fprintf(opened, DIV);
+      break;
+  }
+}
 
+void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
+  if (operation_tree) {
+    Exp exp = operation_tree->exp;
+    bool is_right_first;
 
-    default:
+    switch(exp->kind) {
+      case is_ExpLit:
+        invoke_printer_start(opened);
+        determine_literal_opcode_push_onto_stack(exp, opened);
+        invoke_printer_end(opened);
+
+        break;
+
+      case is_ExpVar:
+        load_variable(exp, opened);
+
+        break;
+
+      default:
+
+        if (get_height(operation_tree->left) < get_height(operation_tree-> right)) {
+            // swap
+          // values on the stack: ..right, left
+          // isub right - left, but we need left - right -> then swap is needed
+            is_right_first = true;
+            perform_arithmetic(operation_tree->right, opened);
+            perform_arithmetic(operation_tree->left, opened);
+        }
+        // no need for swap if left is first
+        else {
+            is_right_first = false
+            perform_arithmetic(operation_tree->left, opened);
+            perform_arithmetic(operation_tree->right, opened);
+        }
+
+        perform_opcode(exp, is_right_first, opened);
+    }
   }
 }
 void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {}  
@@ -182,6 +239,8 @@ void execute_expression(Exp exp, FILE* opened) {
 
     //print an expression
     default:
+      ast_node* operation_tree = get_ast_tree(exp);
+      
   }
 }
 

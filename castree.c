@@ -54,7 +54,7 @@ Exp get_exp2(Exp exp) {
   }
 }
 
-static int get_height(ast_node* node) {
+int get_height(ast_node* node) {
     if (!node) return 0;
     return node->height;
 }

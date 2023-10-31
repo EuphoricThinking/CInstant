@@ -14,3 +14,4 @@ bool have_both_leaves(Exp exp);
 Exp get_exp1(Exp exp);
 Exp get_exp2(Exp exp);
 int max(int a, int b);
+int get_height(ast_node* node);
