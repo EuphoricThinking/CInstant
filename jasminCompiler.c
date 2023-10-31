@@ -394,6 +394,8 @@ void initialize_list_nodes_null(ast_node** listtree, int len) {
 }
 
 void free_list_nodes(ast_node** listtree, int len) {
+  if (!listtree) return;
+
   for (int i = 0; i < len; i++) {
     ast_node* temp = listtree[i];
     if (temp) {
@@ -462,18 +464,19 @@ int main(int argc, char ** argv)
     
     printf("ha%d %d %d\n", prev, next, last_register);
 
-    int list_len = 0;
-    ast_node** list_of_trees = NULL;
+    // int list_len = 0;
+    // ast_node** list_of_trees = NULL;
 
-    if (parse_tree->kind == is_Prog) {
-      list_len = list_stms_len(parse_tree->u.prog_.liststmt_);
-      initialize_list_nodes_null(list_of_trees, list_len);
-    }
+    // if (parse_tree->kind == is_Prog) {
+    //   list_len = list_stms_len(parse_tree->u.prog_.liststmt_);
+    // ast_node** list_of_trees = malloc(sizeof(ast_node*) * list_len);
 
-    ast_node** list_of_trees = malloc(sizeof(ast_node*) * list_len);
+    //   initialize_list_nodes_null(list_of_trees, list_len);
+    // }
 
+    
     // here we go
-    determine_stack_and_locals(parse_tree, list_of_trees);
+    determine_stack_and_locals(parse_tree);//, list_of_trees);
 
     fclose(fopen(j_name, "w"));
     FILE* opened_j_file = fopen(j_name, "a");
@@ -488,6 +491,7 @@ int main(int argc, char ** argv)
     print_jasmin_end(opened_j_file);
 
     free_Program(parse_tree);
+    free_list_nodes(list_of_trees);
 
     // fprintf(opened_ll_file, ZERO_RET_MAIN);
     // fprintf(opened_ll_file, END_MAIN_BRACKET);
