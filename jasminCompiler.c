@@ -56,6 +56,7 @@ Node* assignment_dictionary = NULL;
 int last_load = 0;
 
 int max_stack = 0;
+int max_locals = 1; // default is 1
 
 int get_new_register_increase_previous() {
   return last_register++;
@@ -313,7 +314,32 @@ void determine_expression(Exp exp) {
       max_height = determine_tree(exp);
       // One at the top of the stack
       stack_height_with_print = max(max_height, PRINT_STACK);
-      update_stack_limit(max_height);
+      update_stack_limit(stack_height_with_print);
+  }
+}
+
+void update_variables_count() {
+  max_locals++;
+}
+
+void determine_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
+  Node* found = search(assignment_dictionary, ident);
+  if (!found) {
+        update_variables_count();
+        assignment_dictionary = insert(assignment_dictionary, ident, 0);
+  }
+
+  int max_height;
+  int stack_height_with_print;
+  switch (exp->kind) {
+    // first time assignment to a literal
+    case is_ExpLit:
+      break;
+
+    default:
+      max_height = determine_tree(exp);
+      stack_height_with_print = max(max_height, PRINT_STACK);
+      update_stack_limit(stack_height_with_print);
   }
 }
 
