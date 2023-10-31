@@ -434,6 +434,7 @@ void print_jasmin_end(FILE* opened) {
 void print_jasmin_stack_locals(FILE* opened) { 
   fprintf(opened, "%s%d\n", LOCALS_SIZE, max_locals);
   fprintf(opened, "%s%d\n", STACK_SIZE, max_stack); 
+}
 
 int determine_tree(Exp exp) {
   if (is_leaf(exp)) {
