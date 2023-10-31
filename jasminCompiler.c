@@ -101,6 +101,47 @@ void update_stack_limit(int new_value) {
   max_stack = max(max_stack, new_value);
 }
 
+Exp get_exp1(Exp exp) {
+  switch (exp->kind) {
+    case is_ExpAdd:
+      return exp->u.expadd_.exp_1;
+    case is_ExpSub:
+      return exp->u.expsub_.exp_1;
+    case is_ExpMul:
+      return exp->u.expmul_.exp_1;
+    case is_ExpDiv:
+      return exp->u.expdiv_.exp_1;
+    default:
+      return exp
+  }
+}
+
+Exp get_exp2(Exp exp) {
+  switch (exp->kind) {
+    case is_ExpAdd:
+      return exp->u.expadd_.exp_2;
+    case is_ExpSub:
+      return exp->u.expsub_.exp_2;
+    case is_ExpMul:
+      return exp->u.expmul_.exp_2;
+    case is_ExpDiv:
+      return exp->u.expdiv_.exp_2;
+    default:
+      return exp
+  }
+}
+
+bool is_leaf(Exp exp) {
+  return exp->kind == is_ExpLit || exp->kind == is_ExpVar;
+}
+
+bool have_both_leaves(Exp exp) {
+  Exp e1 = get_exp1(exp);
+  Exp e2 = get_exp2(exp);
+
+  return is_leaf(e1) && is_leaf(e2);
+}
+
 void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
   int value = get_expr_value(exp);
 
@@ -125,7 +166,6 @@ void execute_expression(Exp exp, FILE* opened) {
   switch(exp->kind) {
     // print literal
     case is_ExpLit:
-      update_stack_limit(PRINT_STACK);
       invoke_printer_start(opened);
       determine_literal_opcode_push_onto_stack(exp, opened);
       invoke_printer_end(opened);
@@ -231,47 +271,6 @@ void print_jasmin_end(FILE* opened) {
 void print_jasmin_stack_locals(FILE* opened) { //}, int locals_size, int stack_size) {
   fprintf(opened, "%s%d\n", LOCALS_SIZE, max_locals);//locals_size);
   fprintf(opened, "%s%d\n", STACK_SIZE, max_stack); //stack_size);
-}
-
-Exp get_exp1(Exp exp) {
-  switch (exp->kind) {
-    case is_ExpAdd:
-      return exp->u.expadd_.exp_1;
-    case is_ExpSub:
-      return exp->u.expsub_.exp_1;
-    case is_ExpMul:
-      return exp->u.expmul_.exp_1;
-    case is_ExpDiv:
-      return exp->u.expdiv_.exp_1;
-    default:
-      return exp
-  }
-}
-
-Exp get_exp2(Exp exp) {
-  switch (exp->kind) {
-    case is_ExpAdd:
-      return exp->u.expadd_.exp_2;
-    case is_ExpSub:
-      return exp->u.expsub_.exp_2;
-    case is_ExpMul:
-      return exp->u.expmul_.exp_2;
-    case is_ExpDiv:
-      return exp->u.expdiv_.exp_2;
-    default:
-      return exp
-  }
-}
-
-bool is_leaf(Exp exp) {
-  return exp->kind == is_ExpLit || exp->kind == is_ExpVar;
-}
-
-bool have_both_leaves(Exp exp) {
-  Exp e1 = get_exp1(exp);
-  Exp e2 = get_exp2(exp);
-
-  return is_leaf(e1) && is_leaf(e2);
 }
 
 int determine_tree(Exp exp) {
@@ -435,6 +434,9 @@ int main(int argc, char ** argv)
     FILE* opened_j_file = fopen(j_name, "a");
     print_jasmin_header(new_name, opened_j_file);
     print_jasmin_stack_locals(opened_j_file);
+
+    free_tree(assignment_dictionary);
+    assignment_dictionary = NULL;
 
     iterate_over_program(parse_tree, opened_j_file);
 
