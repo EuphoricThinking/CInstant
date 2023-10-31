@@ -156,9 +156,14 @@ void free_tree(Node* tree) {
         free_tree(tree->left);
         free_tree(tree->right);
 
+        tree->left = NULL;
+        tree->right = NULL;
+
         // should be satisfied
         free(tree->ident);
+        tree->ident = NULL;
         free(tree);
+        tree = NULL;
     }
 }
 

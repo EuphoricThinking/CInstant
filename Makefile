@@ -6,5 +6,5 @@ clean:
 	rm compilerInstant
 
 jasm:
-	./insc_jvm dummyj.ins
+	valgrind --leak-check=full ./insc_jvm dummyj.ins
 	java -jar ./lib/jasmin.jar dummyj.j

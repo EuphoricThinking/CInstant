@@ -56,6 +56,7 @@ void concatenate_at_the_end(char* text) {
 
 int last_register = 0;
 Node* assignment_dictionary = NULL;
+Node* counter = NULL;
 int last_load = 0;
 
 // static, no this from 
@@ -228,7 +229,7 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
             perform_arithmetic(operation_tree->right, opened);
             perform_arithmetic(operation_tree->left, opened);
         }
-        // no need for swap if left is first
+        // assignment_dictionaryno need for swap if left is first
         else {
             is_right_first = false;
             perform_arithmetic(operation_tree->left, opened);
@@ -243,7 +244,7 @@ void perform_arithmetic(ast_node* operation_tree, FILE* opened) {
 void store_new_var(Ident ident, FILE* opened) {
   int new_local_var_num = get_new_local();
   determine_opcode_store(new_local_var_num, opened);
-  assignment_dictionary = insert(assignment_dictionary, ident, new_local_var_num);
+  assignment_dictionary = insert(assignment_dictionary, strdup(ident), new_local_var_num);
 }
 
 void execute_assignment(Exp exp, Ident ident, FILE* opened) {
@@ -492,7 +493,7 @@ void determine_assignment(Exp exp, Ident ident) {
   Node* found = search(assignment_dictionary, ident);
   if (!found) {
         update_variables_count();
-        assignment_dictionary = insert(assignment_dictionary, ident, 0);
+        counter = insert(counter, strdup(ident), 0);
   }
 
   int max_height;
@@ -609,7 +610,7 @@ int main(int argc, char ** argv)
     // Erase the file content if the file has been already created
     
 
-    initialize_method_body();
+    //initialize_method_body();
 
     printf("%s\n%s\n", new_name->ext, new_name->name);
 
@@ -627,8 +628,6 @@ int main(int argc, char ** argv)
 
     //   initialize_list_nodes_null(list_of_trees, list_len);
     // }
-
-    
     // here we go
     determine_stack_and_locals(parse_tree);//, list_of_trees);
 
@@ -637,8 +636,14 @@ int main(int argc, char ** argv)
     print_jasmin_header(new_name, opened_j_file);
     print_jasmin_stack_locals(opened_j_file);
 
-    free_tree(assignment_dictionary);
-    assignment_dictionary = NULL;
+    printf("before free\n");
+
+    free_tree(counter);
+    counter = NULL;
+    // free_tree(assignment_dictionary);
+    // assignment_dictionary = NULL;
+
+    printf("after free\n");
 
     iterate_over_program(parse_tree, opened_j_file);
 
@@ -659,7 +664,7 @@ int main(int argc, char ** argv)
     print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
-    free_body();
+    //free_body();
 
     // if (execle(BASH_COMMAND, BASH_COMMAND, HELPER_NAME, NULL, environ) == -1) {
 
