@@ -289,7 +289,18 @@ void execute_assignment(Exp exp, Ident ident, FILE* opened) {
       break;
 
     default:
-      
+      ast_node* operation_tree = get_ast_tree(exp);
+
+      if (!found) {
+        store_new_var(ident, opened);
+      }
+      else {
+        determine_opcode_store(found->value, opened);
+      }
+
+      free_tree_ast(operation_tree);
+
+      break;
   }
 }  
 
