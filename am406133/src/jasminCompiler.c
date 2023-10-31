@@ -523,6 +523,7 @@ void update_variables_count() {
 void determine_assignment(Exp exp, Ident ident) {
   Node* found = search(counter, ident);
   if (!found) {
+        // it has been already assigned, therefore the stack size haas been already updated
         update_variables_count();
         printf("IDENT: %s\n", ident);
         counter = insert(counter, strdup(ident), -1);

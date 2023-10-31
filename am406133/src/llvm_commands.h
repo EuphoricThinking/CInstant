@@ -34,7 +34,7 @@
 
 #define LLVM_LINK_START "llvm-link -o "
 #define LLVM_LINK_END " ./build/temp.bc ./build/runtime.bc "
-#define LLVM_AS_START "llvm-as -o ./build/runtime.bc ./build/runtime.ll \nllvm-as -o ./build/temp.bc "
+#define LLVM_AS_START "llvm-as -o ./build/runtime.bc ./lib/runtime.ll \nllvm-as -o ./build/temp.bc "
 #define LLVM_AS_END "\n"
 #define SHELL_COMMAND_LENGTH 93 // +2
 #define HELPER_NAME "./build/HELPER.sh"
