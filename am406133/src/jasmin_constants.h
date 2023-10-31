@@ -54,7 +54,7 @@
 
 #define RETURN "\treturn\n"
 
-#define LOAD "\tload "
+#define LOAD "\tiload "
 #define STORE "\tistore "
 #define PUSH "\tpush "
 #define LDC "\tldc "

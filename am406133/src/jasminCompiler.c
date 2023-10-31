@@ -533,6 +533,8 @@ void determine_assignment(Exp exp, Ident ident) {
   switch (exp->kind) {
     // first time assignment to a literal
     case is_ExpLit:
+      // once pushed
+      update_stack_limit(1);
       break;
 
     default:
