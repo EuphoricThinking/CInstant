@@ -20,11 +20,13 @@
 
 #define GET_PRINTER "\tgetstatic java/lang/System/out Ljava/io/PrintStream\n"
 #define INVOKE_PRINTER "\tinvokevirtual java/io/PrintStream/println(I)V\n"
-    
+
+// push onto the stack
 #define ICONST_RANGE_MIN 0
 #define ICONST_RANGE_MAX 5
 #define ICONST_SHORT "\ticonst_"
 
+// push ith local variable onto the stack
 #define ILOAD_RANGE_MIN 0
 #define ILOAD_RANGE_MAX 3
 #define ILOAD_SHORT "\tiload_"
@@ -36,6 +38,9 @@
 
 #define BIPUSH_LIMIT INT8_MAX
 #define SIPUSH_LIMIT INT16_MAX
+
+#define BIPUSH "\tbipush "
+#define SIPUSH "\tsipush "
 
 #define DUP "\tdup\n"
 #define POP "\tpop\n"
