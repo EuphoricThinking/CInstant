@@ -125,23 +125,24 @@ void update_stack_limit(int new_value) {
 
 
 void determine_literal_opcode_push_onto_stack(Exp exp, FILE* opened) {
+  printf("B %d S %d \n", BIPUSH_LIMIT, SIPUSH_LIMIT);
   int value = get_expr_value(exp);
 
   if (value >= ICONST_RANGE_MIN && value <= ICONST_RANGE_MAX) {
     fprintf(opened, "%s%d\n", ICONST_SHORT, value);
     //concatenate_at_the_end(I)
   }
-  else if (value < BIPUSH_LIMIT) {
+  else if (value <= BIPUSH_LIMIT) {
     fprintf(opened, "%s%d\n", BIPUSH, value);
   }
-  else if (value < SIPUSH_LIMIT) {
+  else if (value <= SIPUSH_LIMIT) {
     fprintf(opened, "%s%d\n", SIPUSH, value);
   }
   else if (value == -1) {
     fprintf(opened, ICONST_M1);
   }
   else {
-    fprintf(opened, "%s%d\n", PUSH, value);
+    fprintf(opened, "%s%d\n", LDC, value);
   }
 }
 
