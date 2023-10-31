@@ -79,10 +79,7 @@ void usage(void) {
   printf("\t-s (files)\tSilent mode. Parse content of files silently.\n");
 }
 
-int max(int a, int b) {
-  if (a < b) return b;
-  return a;
-}
+
 
 void invoke_printer_start(FILE* opened) {
   fprintf(opened, "%s", GET_PRINTER);
@@ -104,35 +101,7 @@ void update_stack_limit(int new_value) {
   max_stack = max(max_stack, new_value);
 }
 
-Exp get_exp1(Exp exp) {
-  switch (exp->kind) {
-    case is_ExpAdd:
-      return exp->u.expadd_.exp_1;
-    case is_ExpSub:
-      return exp->u.expsub_.exp_1;
-    case is_ExpMul:
-      return exp->u.expmul_.exp_1;
-    case is_ExpDiv:
-      return exp->u.expdiv_.exp_1;
-    default:
-      return exp;
-  }
-}
 
-Exp get_exp2(Exp exp) {
-  switch (exp->kind) {
-    case is_ExpAdd:
-      return exp->u.expadd_.exp_2;
-    case is_ExpSub:
-      return exp->u.expsub_.exp_2;
-    case is_ExpMul:
-      return exp->u.expmul_.exp_2;
-    case is_ExpDiv:
-      return exp->u.expdiv_.exp_2;
-    default:
-      return exp;
-  }
-}
 
 
 
@@ -418,6 +387,23 @@ int list_stms_len(ListStmt stms) {
   return 1 + list_stms_len(stms->liststmt_);
 }
 
+void initialize_list_nodes_null(ast_node** listtree, int len) {
+  for (int i = 0; i < len; i++) {
+    listtree[i] = NULL;
+  }
+}
+
+void free_list_nodes(ast_node** listtree, int len) {
+  for (int i = 0; i < len; i++) {
+    ast_node* temp = listtree[i];
+    if (temp) {
+      free_tree_ast(temp);
+    }
+  }
+
+  free(listtree);
+}
+
 int main(int argc, char ** argv)
 {
   printf("in\n");
@@ -476,8 +462,18 @@ int main(int argc, char ** argv)
     
     printf("ha%d %d %d\n", prev, next, last_register);
 
+    int list_len = 0;
+    ast_node** list_of_trees = NULL;
+
+    if (parse_tree->kind == is_Prog) {
+      list_len = list_stms_len(parse_tree->u.prog_.liststmt_);
+      initialize_list_nodes_null(list_of_trees, list_len);
+    }
+
+    ast_node** list_of_trees = malloc(sizeof(ast_node*) * list_len);
+
     // here we go
-    determine_stack_and_locals(parse_tree);
+    determine_stack_and_locals(parse_tree, list_of_trees);
 
     fclose(fopen(j_name, "w"));
     FILE* opened_j_file = fopen(j_name, "a");
