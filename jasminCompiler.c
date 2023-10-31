@@ -273,7 +273,7 @@ bool have_both_leaves(Exp exp) {
   return is_leaf(e1) && is_leaf(e2);
 }
 
-void determine_tree(Exp exp) {
+int determine_tree(Exp exp) {
   if (is_leaf(exp)) {
     return 1;
   }
@@ -293,6 +293,8 @@ void determine_tree(Exp exp) {
 }
 
 void determine_expression(Exp exp) {
+  int max_height;
+  int stack_height_with_print;
   switch(exp->kind) {
     // print literal
     case is_ExpLit:
@@ -305,7 +307,13 @@ void determine_expression(Exp exp) {
     case is_ExpVar:
       update_stack_limit(PRINT_STACK);
       break;
+
+    // The whole expression is to be printed
     default:
+      max_height = determine_tree(exp);
+      // One at the top of the stack
+      stack_height_with_print = max(max_height, PRINT_STACK);
+      update_stack_limit(max_height);
   }
 }
 
