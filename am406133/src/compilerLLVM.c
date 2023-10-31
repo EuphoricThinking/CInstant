@@ -69,7 +69,6 @@ void store_value(FILE* ll_to_append, char* register_name, int value) {
 
 void store_register(FILE* ll_to_append, char* register_name, int register_num) {
   fprintf(ll_to_append, "%s%%%d", STORE_START_VALUE, register_num);
- // fprintf(ll_to_append, "%d", register_num);
   fprintf(ll_to_append, STORE_MIDDLE);
   fprintf(ll_to_append, "%s", register_name);
   fprintf(ll_to_append, STORE_END_REGISTER);
@@ -78,7 +77,6 @@ void store_register(FILE* ll_to_append, char* register_name, int register_num) {
 // the value is in variable
 void store_variable(FILE* ll_to_append, char* register_name, int register_num) {
   fprintf(ll_to_append, "%s%%load_%d", STORE_START_VALUE, register_num);
- // fprintf(ll_to_append, "%d", register_num);
   fprintf(ll_to_append, STORE_MIDDLE);
   fprintf(ll_to_append, "%s", register_name);
   fprintf(ll_to_append, STORE_END_REGISTER);
@@ -259,8 +257,6 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
     default:
       arm_res = parse_tree_calculate(exp, ll_to_append);
       register_num = arm_res.register_num;
-      if (arm_res.kind == is_variable) printf("var%d\n", is_variable);
-      printf("%s %d %d\n", ident, arm_res.kind, arm_res.register_num);
 
       if (found) {
         found->value = value;
@@ -283,32 +279,6 @@ void execute_assignment(Exp exp, Ident ident, FILE* ll_to_append) {
         }
       }
   }
-  // switch (exp->kind) {
-  //   // ident = exp.int
-  //   case is_ExpLit:
-  //     printf("literal\n");
-  //     found = search(assignment_dictionary, ident);
-  //     int value = exp->u.explit_.integer_;
-
-  //     if (found) {
-  //       found->value = value;
-  //       store_value(ll_to_append, ident, value);
-  //     }
-  //     else {
-  //       char* new_ident = strdup(ident);
-  //       printf("cmp %d\n", strcmp(new_ident, ident));
-  //       assignment_dictionary = insert(assignment_dictionary, new_ident, value);
-
-  //       initialize_variable(ll_to_append, ident, value);
-  //     }
-
-  //     break;
-
-  //   // an expression x = 2*4
-  //   default:
-  //     arm_res = parse_tree_calculate(exp, ll_to_append);
-
-  // }
 }
 
 void execute_statement(Stmt single_statement, FILE* ll_to_append) {
@@ -352,22 +322,9 @@ names_extensions* get_ll_filename(char* basename) {
     result->ll_ext = stdin_name;
     result->bc_ext = stdin_bc;
     result->len = STDIN_BC_LEN;
-    // names_extensions result = { .ll_ext = stdin_name, .bc_ext = stdin_bc};
     return result;
   }
 
-   ;
-
-  // // Null pointer or the same as basename pointer
-  // if (! dot_occurence || dot_occurence == basename) {
-  //   //return NULL;
-  //   // Return only stdin.ll
-  //   char* stdin_name = malloc(sizeof(char) * STDIN_STR_LEN); 
-  //   strcpy(stdin_name, STDIN_NAME);
-
-  //   return stdin_name;
-  // }
-  // else {
     int basename_len = (int) strlen(basename);
     // only the extension
     int ext_len = (int) strlen(dot_occurence + 1);
@@ -384,30 +341,23 @@ names_extensions* get_ll_filename(char* basename) {
 
     memcpy(ll_filename, basename, core_size);
     memcpy(ll_filename + core_size, LL_SUFF, LL_LEN);
-    // ll_filename[core_size + LL_LEN - 1] = '\0';
 
     char* bc_filename = strdup(ll_filename);
     memcpy(bc_filename + core_size, BC_SUFF, BC_LEN); 
 
-    //return ll_filename;
-    //return {ll_filename, bc_filename};
     result->ll_ext = ll_filename;
     result->bc_ext = bc_filename;
     result->len = core_size + BC_LEN;
 
-    //names_extensions result = { .ll_ext = ll_filename, .bc_ext = bc_filename};
     return result;
-  //}
 }
 
-// void append_instruction_to_the_end(FILE* opened_ll_file)
 void free_names(names_extensions* names) {
   free(names->ll_ext);
   free(names->bc_ext);
   free(names);
 }
 
-// TODO check for errors
 void create_shell_command(names_extensions* names) {
   fclose(fopen(HELPER_NAME, "w"));
   FILE* helper_script = fopen(HELPER_NAME, "a");
@@ -422,7 +372,6 @@ void create_shell_command(names_extensions* names) {
 
 int main(int argc, char ** argv)
 {
-  printf("in\n");
   FILE *input;
   Program parse_tree;
   int quiet = 0;
@@ -441,7 +390,6 @@ int main(int argc, char ** argv)
     }
   }
 
-  printf("next\n");
 
   if (filename) {
     input = fopen(filename, "r");
@@ -458,27 +406,13 @@ int main(int argc, char ** argv)
 
   if (parse_tree)
   {
-    printf("here\n");
-    //char* filename_without_path = basename(filename);
-    // printf("%s\n", filename_without_path);
     names_extensions* new_name = get_ll_filename(filename);
-    // printf("%s\n", new_name);
     char* ll_name = new_name->ll_ext;
 
-    // TODO add const char*
     // Erase the file content if the file has been already created
     fclose(fopen(ll_name, "w"));
     FILE* opened_ll_file = fopen(ll_name, "a");
-    // fprintf(opened_ll_file, PRINT_INT_DEF);
     fprintf(opened_ll_file, DECLARE_PRINT_INT_MAIN);
-
-    printf("%s\n%s\n", new_name->ll_ext, new_name->bc_ext);
-
-    int prev = last_register;
-    int next = get_new_register_increase_previous();
-    
-    printf("ha%d %d %d\n", prev, next, last_register);
-
 
     iterate_over_program(parse_tree, opened_ll_file);
 
@@ -492,8 +426,6 @@ int main(int argc, char ** argv)
     fclose(opened_ll_file);
 
     extern char** environ;
-    printf("printing\n");
-    print_tree(assignment_dictionary);
 
     free_tree(assignment_dictionary);
 
@@ -501,9 +433,6 @@ int main(int argc, char ** argv)
 
       return 1;
     }
-
-    // int call_result = system(COMPILE_TO_BC_COMMAND);
-    // printf("%d i chuj\n", call_result);
 
     return 0;
   }

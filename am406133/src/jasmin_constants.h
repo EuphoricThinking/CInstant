@@ -6,7 +6,6 @@
 #define LOCALS_SIZE "\t.limit locals " 
 #define STACK_SIZE "\t.limit stack " 
 
-// #define BEGIN_METHOD ".method public static "
 #define BEGIN_METHOD ".method public static main([Ljava/lang/String;)V\n"
 #define END_METHOD ".end method\n"
 #define CLASS_BEGINNING ".class public "
