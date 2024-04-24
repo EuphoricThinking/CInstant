@@ -1,9 +1,9 @@
 all:
-	gcc -g compiler.c cavl.c testReduce/Parser.c testReduce/Lexer.c testReduce/Absyn.c -o compilerInstant -ItestReduce
-	gcc -g jasminCompiler.c cavl.c testReduce/Parser.c testReduce/Lexer.c testReduce/Absyn.c castree.c -o insc_jvm -ItestReduce
+	gcc -g src/compiler.c src/cavl.c src/Parser.c src/Lexer.c src/Absyn.c -o insc_llvm -Isrc
+	gcc -g src/jasminCompiler.c src/cavl.c src/Parser.c src/Lexer.c src/Absyn.c src/castree.c -o insc_jvm -Isrc
 
 clean:
-	rm compilerInstant
+	rm insc_jvm insc_llvm
 
 jasm:
 	valgrind --leak-check=full ./insc_jvm dummyj.ins
